@@ -1,8 +1,8 @@
 # Lightweight pothole detection. Run `make help` for targets.
 ifeq ($(OS),Windows_NT)
-PY ?= .venv/Scripts/python.exe
+PY ?= deep_learning/Scripts/python.exe
 else
-PY ?= .venv/bin/python
+PY ?= deep_learning/bin/python
 endif
 ARGS ?=
 # PyTorch wheel index: cu128 (NVIDIA driver >= 570), cu126 (older driver) or cpu
@@ -12,7 +12,7 @@ EXP ?= E1
 .PHONY: help env lint download inspect tag convert split rain eda data crop proposal kernel notebook notebooks train train-list
 
 help:
-	@echo "make env       - create .venv (uv, Python 3.11), install torch (TORCH=cu128|cu126|cpu) + requirements"
+	@echo "make env       - create deep_learning (uv, Python 3.14, with pip), install torch (TORCH=cu128|cu126|cpu) + requirements"
 	@echo "make lint      - ruff format + lint"
 	@echo "make download  - fetch MWPD, verify+extract RDD2022 (zip downloaded beforehand)"
 	@echo "make data      - Phase 1: inspect, convert, split, synthetic rain, EDA"
@@ -20,14 +20,14 @@ help:
 	@echo "make train-list EXP=E1  - show Phase 2 runs and time estimate"
 	@echo "make train EXP=E1       - train (finished runs skipped); ARGS='--seeds 42' etc."
 	@echo "make proposal  - build slides/proposal.pdf and slides/proposal-notes.pdf (speaker notes)"
-	@echo "make kernel    - register .venv as Jupyter kernel 'pothole-venv'"
+	@echo "make kernel    - register deep_learning as Jupyter kernel 'deep_learning'"
 	@echo "make notebook  - rebuild and execute notebooks/01_model_overview.ipynb"
 	@echo "make notebooks - regenerate notebooks/02_phase2_training.ipynb (saved without outputs)"
 	@echo "make tag       - rebuild outputs/tag_weather.html (manual MWPD weather tags)"
 	@echo "ARGS='--dry-run' or ARGS='--force' are passed to every Phase-1 script"
 
 env:
-	uv venv --python 3.11 .venv
+	uv venv --python 3.14 --seed --prompt deep_learning deep_learning
 	uv pip install --python $(PY) torch==2.11.0 torchvision==0.26.0 --index-url https://download.pytorch.org/whl/$(TORCH)
 	uv pip install --python $(PY) -r requirements.txt
 
@@ -63,7 +63,7 @@ proposal:
 	cd slides && latexmk -pdf -interaction=nonstopmode proposal.tex proposal-notes.tex
 
 kernel:
-	$(PY) -m ipykernel install --user --name pothole-venv --display-name "Python 3.11 (.venv pothole)"
+	$(PY) -m ipykernel install --user --name deep_learning --display-name "Python 3.14 (deep_learning)"
 
 notebook:
 	$(PY) notebooks/build_01_model_overview.py

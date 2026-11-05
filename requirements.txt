@@ -1,4 +1,5 @@
-# Python 3.11-3.13. Install in a fresh virtual environment, in two steps:
+# Python 3.14 recommended (newest stable release; 3.11-3.14 all work). Python 3.15 (rc) and 3.16 (alpha)
+# have no torch/numpy wheels yet. Install in a fresh virtual environment, in two steps:
 #
 #   1) PyTorch for your hardware (pick ONE; see https://pytorch.org/get-started/locally/):
 #        NVIDIA, driver >= 570 : pip install torch==2.11.0 torchvision==0.26.0 --index-url https://download.pytorch.org/whl/cu128

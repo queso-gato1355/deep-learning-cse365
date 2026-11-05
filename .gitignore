@@ -1,5 +1,6 @@
 # Environment
 .venv/
+deep_learning/
 __pycache__/
 *.pyc
 .ruff_cache/

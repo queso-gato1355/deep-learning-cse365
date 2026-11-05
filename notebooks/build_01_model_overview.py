@@ -1,8 +1,8 @@
 """Generate ``notebooks/01_model_overview.ipynb`` (Korean explanatory notebook).
 
 Run from the project root:
-    .venv/Scripts/python notebooks/build_01_model_overview.py
-    .venv/Scripts/jupyter nbconvert --to notebook --execute --inplace notebooks/01_model_overview.ipynb
+    deep_learning/Scripts/python notebooks/build_01_model_overview.py
+    deep_learning/Scripts/jupyter nbconvert --to notebook --execute --inplace notebooks/01_model_overview.ipynb
 """
 
 from __future__ import annotations
@@ -60,7 +60,8 @@ cells = [
 """),
     md(r"""## 0. 환경 확인
 
-- 프로젝트 루트에서 `uv pip install -r requirements.txt` 후 이 노트북을 `.venv` 커널로 실행합니다.
+- 로컬: README의 Setup대로 `deep_learning` 가상환경(Python 3.14)을 만든 뒤, 오른쪽 위 커널에서 **`Python 3.14 (deep_learning)`** 을 고릅니다.
+  `No module named 'numpy'`가 나오면 커널이 다른 Python(예: 3.16 알파)으로 잡힌 것입니다 → 커널을 다시 고르세요.
 - 데이터(`data/processed/`)가 없으면 데이터를 쓰는 셀은 건너뜁니다. 저장된 출력(그림)은 그대로 볼 수 있습니다.
 
 > **GPU 메모리 메모** — RTX 3070은 VRAM이 **8GB**이고, 24GB는 RTX 3090입니다. 아래 셀이 실제 값을 출력하니 확인해 주세요.
@@ -514,7 +515,7 @@ print("메모리: FP32 4바이트 → FP16 2바이트 → INT8 1바이트 (가�
 nb = nbf.v4.new_notebook()
 nb["cells"] = cells
 nb["metadata"] = {
-    "kernelspec": {"display_name": "Python 3.11 (.venv pothole)", "language": "python", "name": "pothole-venv"},
+    "kernelspec": {"display_name": "Python 3.14 (deep_learning)", "language": "python", "name": "deep_learning"},
     "language_info": {"name": "python"},
 }
 out = Path(__file__).with_name("01_model_overview.ipynb")

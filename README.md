@@ -19,13 +19,13 @@ synthetic rain), C (MWPD normal), D (MWPD rainy).
 
 ## Setup
 
-Python 3.11–3.13 in a fresh virtual environment. Install PyTorch for your hardware first, then the rest:
+Python 3.14 (newest stable; 3.11–3.14 work) in a fresh virtual environment named `deep_learning`. Install PyTorch for your hardware first, then the rest:
 
 ```bash
-uv venv --python 3.11 .venv
+uv venv --python 3.14 --seed --prompt deep_learning deep_learning
 # NVIDIA driver >= 570: cu128 | older driver: cu126 | no GPU / macOS: drop --index-url
-uv pip install --python .venv/Scripts/python.exe torch==2.11.0 torchvision==0.26.0 --index-url https://download.pytorch.org/whl/cu128
-uv pip install --python .venv/Scripts/python.exe -r requirements.txt   # .venv/bin/python on Linux/macOS
+uv pip install --python deep_learning/Scripts/python.exe torch==2.11.0 torchvision==0.26.0 --index-url https://download.pytorch.org/whl/cu128
+uv pip install --python deep_learning/Scripts/python.exe -r requirements.txt   # deep_learning/bin/python on Linux/macOS
 ```
 
 Or simply `make env TORCH=cu128` (or `cu126` / `cpu`). With plain pip, run the same two `pip install` commands
@@ -36,7 +36,7 @@ inside an activated venv. `notebooks/02_phase2_training.ipynb` section 1 diagnos
 
 `notebooks/01_model_overview.ipynb` explains the model design (in Korean) with diagrams and
 measured params/GFLOPs; no training. Run `make kernel` once, then open it with the
-`Python 3.11 (.venv pothole)` kernel, or rebuild it with `make notebook`.
+`Python 3.14 (deep_learning)` kernel, or rebuild it with `make notebook`.
 `notebooks/02_phase2_training.ipynb` runs Phase 2 (environment check, data check, quick test,
 training, validation summary); heavy cells are off by default.
 

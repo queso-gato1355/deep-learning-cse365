@@ -1,7 +1,7 @@
 """Generate ``notebooks/02_phase2_training.ipynb`` (Korean Phase 2 training notebook).
 
 Run from the project root:
-    .venv/Scripts/python notebooks/build_02_phase2_training.py
+    deep_learning/Scripts/python notebooks/build_02_phase2_training.py
 The notebook is saved WITHOUT outputs; run it yourself (heavy cells are off by default).
 """
 
@@ -39,13 +39,18 @@ cells = [
 | `torch==2.11.0+cu128` 처럼 **CUDA 빌드 태그까지 고정** | Mac·CPU 환경은 설치 실패, 드라이버가 오래된 PC는 GPU를 못 씀 | torch는 **하드웨어에 맞게 따로 먼저 설치**, requirements에는 태그 없이 버전만 |
 | `thop` 와 `ultralytics-thop` 가 **같은 `thop` 폴더**에 설치됨 | 서로 덮어써서 GFLOPs가 조용히 0이 됨 | `thop` 삭제 (ultralytics가 `ultralytics-thop`을 알아서 설치) |
 | `opencv-python` 과 `opencv-python-headless` 가 **같은 `cv2` 폴더**에 설치됨 | 버전이 다르면 `import cv2` 오류 | 두 패키지를 **같은 버전으로 고정** |
-| Python 버전·기존 환경(Anaconda 등)과 충돌 | 설치 중 빌드 실패, 버전 충돌 | **새 가상환경 + Python 3.11~3.13** |
-| **알파 버전 Python(3.16.0a1)으로 만든 가상환경** — VS Code가 만든 `deep_learning` 환경이 이 경우 | numpy·torch 설치 실패 → `No module named 'numpy'` | Python **3.11**로 가상환경을 다시 만들기 |
+| Python 버전·기존 환경(Anaconda 등)과 충돌 | 설치 중 빌드 실패, 버전 충돌 | **새 가상환경 + Python 3.14** |
+| **정식 출시 전 Python(3.15 rc, 3.16 알파)으로 만든 가상환경** | numpy·torch 설치 실패 → `No module named 'numpy'` | Python **3.14**로 가상환경 만들기 |
 
-> **우리 PC에서 확인된 실제 원인**: 프로젝트 안의 `deep_learning` 가상환경은 설정 파일엔 3.11로 적혀 있지만
-> 실제로는 **Python 3.16.0a1(알파)** 로 실행됩니다. 알파 버전용 numpy·torch 설치 파일이 없어서 설치가 실패했습니다.
-> 이미 모든 패키지가 설치·검증된 **`.venv`(Python 3.11)** 를 쓰거나(VS Code 오른쪽 위 커널 선택 →
-> `Python 3.11 (.venv pothole)`), `deep_learning`을 3.11로 다시 만드세요.
+> **우리 PC에서 `No module named 'numpy'`가 난 원인 (2026-11-05 분석)**
+> 1. 20:59에 uv로 **Python 3.16.0a1(알파, 정식 출시 전)** 이 설치되어 Windows에 등록됨 → VS Code가 "가장 최신 Python"으로 보여 줌.
+> 2. 21:03에 만든 `deep_learning` 가상환경이 설정 파일(`pyvenv.cfg`)엔 3.11로 적혀 있었지만 **실제로는 3.16 알파로 실행**됨
+>    (Python 스스로 "이 가상환경은 3.11용인데 지금은 3.16"이라는 경고를 냄).
+> 3. torch·numpy는 3.16(그리고 아직 rc인 3.15)용 설치 파일이 없음 → `pip install -r requirements.txt`가 실패.
+> 4. 그 환경에 들어 있던 건 VS Code가 노트북 실행용으로 자동 설치한 `ipykernel` 등 31개 패키지뿐 → 노트북 첫 셀의 `import numpy`에서 중단.
+>
+> **해결**: `deep_learning`을 **Python 3.14.8**(가장 최신 *정식* 버전, 모든 패키지 설치 가능)로 새로 만들고 전부 설치·검증했습니다.
+> 노트북 커널은 **`Python 3.14 (deep_learning)`** 을 고르세요.
 
 확인: Windows / Linux / Apple Silicon Mac × Python 3.11~3.14 모두 미리 빌드된 패키지(wheel)만으로 설치되는 것을 확인했습니다.
 (단, Intel Mac은 PyTorch가 더 이상 지원하지 않습니다.)
@@ -53,8 +58,8 @@ cells = [
 ### 올바른 설치 순서 (터미널, 프로젝트 루트에서)
 ```bash
 # 0) 새 가상환경 (uv 사용 시)
-uv venv --python 3.11 .venv
-#    또는 python -m venv .venv  (Python 3.11~3.13)
+uv venv --python 3.14 --seed --prompt deep_learning deep_learning
+#    또는 py -3.14 -m venv deep_learning  (정식 출시된 Python 3.14)
 # 1) PyTorch — 하드웨어에 맞는 것 하나만
 #    NVIDIA, 드라이버 570 이상 (nvidia-smi 오른쪽 위 "Driver Version" 확인)
 pip install torch==2.11.0 torchvision==0.26.0 --index-url https://download.pytorch.org/whl/cu128
@@ -65,10 +70,10 @@ pip install torch==2.11.0 torchvision==0.26.0
 # 2) 나머지
 pip install -r requirements.txt
 # 3) 이 노트북의 커널 등록
-python -m ipykernel install --user --name pothole-venv --display-name "Python 3.11 (.venv pothole)"
+python -m ipykernel install --user --name deep_learning --display-name "Python 3.14 (deep_learning)"
 ```
-`uv`로 만든 가상환경에는 `pip`이 없으므로 `pip install ...` 대신 `uv pip install --python .venv/Scripts/python.exe ...` 를 씁니다
-(Mac/Linux는 `.venv/bin/python`).
+`--seed`를 붙여 만들었으므로 `deep_learning` 안에서 `pip`을 그대로 쓸 수 있습니다
+(터미널에서 `deep_learning\Scripts\activate` 후 `pip ...`, 또는 `deep_learning\Scripts\python -m pip ...`).
 
 아래 셀이 현재 환경을 진단하고, 문제가 있으면 **고치는 명령어**를 알려 줍니다.
 """),
@@ -92,19 +97,19 @@ def add(ok, item, detail, fix=""):
 py = sys.version_info
 if py.releaselevel != "final":
     add(False, "Python", f"{platform.python_version()} (정식 출시 전 {py.releaselevel} 버전)",
-        "알파/베타 Python에는 numpy·torch 설치 파일이 없습니다 → Python 3.11로 가상환경을 다시 만드세요: "
-        "uv venv --python 3.11 .venv")
+        "알파/베타 Python에는 numpy·torch 설치 파일이 없습니다 → Python 3.14로 가상환경을 다시 만드세요: "
+        "uv venv --python 3.14 --seed deep_learning --clear")
 else:
-    add(py[:2] in [(3, 11), (3, 12), (3, 13)], "Python", platform.python_version(),
-        "" if py[:2] in [(3, 11), (3, 12), (3, 13)] else "Python 3.11~3.13으로 새 가상환경을 만드세요")
+    add(py[:2] in [(3, 11), (3, 12), (3, 13), (3, 14)], "Python", platform.python_version(),
+        "" if py[:2] in [(3, 11), (3, 12), (3, 13), (3, 14)] else "Python 3.14로 새 가상환경을 만드세요 (uv venv --python 3.14 --seed deep_learning)")
 cfg_file = Path(sys.prefix) / "pyvenv.cfg"
 if cfg_file.exists():
     m = re.search(r"^version(?:_info)?\s*=\s*(\d+\.\d+)", cfg_file.read_text(encoding="utf-8"), re.M)
     if m and m.group(1) != f"{py[0]}.{py[1]}":
         add(False, "가상환경 일치", f"pyvenv.cfg는 Python {m.group(1)}, 실제 실행은 {py[0]}.{py[1]}",
-            "망가진 가상환경입니다 → 지우고 다시 만드세요 (uv venv --python 3.11 <폴더> --clear)")
+            "망가진 가상환경입니다 → 지우고 다시 만드세요 (uv venv --python 3.14 --seed <폴더> --clear)")
 add(sys.prefix != sys.base_prefix or None, "가상환경", sys.prefix,
-    "" if sys.prefix != sys.base_prefix else "가상환경이 아닙니다. 기존 패키지와 충돌할 수 있으니 .venv를 쓰세요")
+    "" if sys.prefix != sys.base_prefix else "가상환경이 아닙니다. 기존 패키지와 충돌할 수 있으니 deep_learning 커널을 쓰세요")
 
 try:
     import torch
@@ -390,8 +395,8 @@ batch = 한 번에 GPU에 올리는 이미지 수 / AutoBatch(`-1`) = GPU 메모
 nb = nbf.v4.new_notebook()
 nb["cells"] = cells
 nb["metadata"] = {
-    "kernelspec": {"display_name": "Python 3.11 (.venv pothole)", "language": "python",
-                   "name": "pothole-venv"},
+    "kernelspec": {"display_name": "Python 3.14 (deep_learning)", "language": "python",
+                   "name": "deep_learning"},
     "language_info": {"name": "python"},
 }
 out = Path(__file__).with_name("02_phase2_training.ipynb")
