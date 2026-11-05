@@ -28,11 +28,9 @@
 % ---------------------------------------------------------------- 1
 \maketitle
 \note{%
-Hello, we are Jung Young-chan and Jo Sumin. Our project is about lightweight pothole detection for vehicle-based road
-monitoring. The idea is that future autonomous cars could detect potholes on their own and
-report them to the road authority right away, so we want to find out whether we can build a
-detector that is accurate enough while being small and fast enough to run on a car.
-Today we will cover the problem definition and the datasets.}
+Hello, we are Jung Young-chan and Jo Sumin. Our project is lightweight pothole detection for
+vehicle-based road monitoring: can a detector be accurate enough, yet small and fast enough to
+run on a car? Today we cover the problem and the datasets.}
 
 % ---------------------------------------------------------------- 2
 \begin{frame}{Motivation}
@@ -52,13 +50,11 @@ Today we will cover the problem definition and the datasets.}
   to run alongside the driving stack.
 \end{frame}
 \note{%
-Today, potholes are found in two ways: road agency staff inspect roads, or people report
-them. But most people do not bother to report small potholes, and on rural or suburban roads
-reports can come very late. Once autonomous cars are common, every car is effectively a road
-sensor, so it could detect a pothole and send its location to the road agency immediately.
-The catch is that the car's computer is busy driving. A pothole detector is only a side task,
-so it has to be efficient, fast and use little computation. Our question is whether we can
-build such a model ourselves.}
+Today, potholes are found by road-agency inspections or by citizen reports. But small potholes
+are rarely reported, and on rural roads reports come late. Once autonomous cars are common,
+every car is a road sensor: it could detect a pothole and send its location to the road agency
+right away. The catch is that the car's computer is busy driving, so a pothole detector, as a
+side task, must be efficient and fast.}
 
 % ---------------------------------------------------------------- 3
 \begin{frame}{Problem statement}
@@ -80,14 +76,12 @@ build such a model ourselves.}
   \end{itemize}
 \end{frame}
 \note{%
-Formally, the task is single-class pothole detection with bounding boxes, under a compute
-constraint. So every result will be reported as accuracy together with model size, GFLOPs and
-speed. This gives three research questions.
-First: how small and fast can the detector get before accuracy becomes useless?
-Second: there are several ways to make a model cheaper, a smaller network, smaller input
-images, a lighter module design, or lower numerical precision. Which one hurts accuracy least?
-And third: a car will drive in other countries and in the rain, so does the efficient model
-still work there?}
+Formally, the task is single-class pothole detection with bounding boxes under a compute
+constraint, so every result is reported as accuracy together with model size, GFLOPs and speed.
+This gives three research questions. First, how small and fast can the detector get before
+accuracy becomes useless? Second, a model can be made cheaper with a smaller network, smaller
+input images, a lighter module, or lower numerical precision. Which one hurts accuracy least?
+Third, does the efficient model still work in other countries and in the rain?}
 
 % ---------------------------------------------------------------- 4
 \begin{frame}{Datasets}
@@ -118,13 +112,11 @@ still work there?}
   \end{itemize}
 \end{frame}
 \note{%
-We use two datasets. RDD2022 is the large multi-country road damage dataset from the CRDDC
-challenge, about forty-seven thousand images captured from vehicles, which is exactly the
-viewpoint we care about. It has several damage classes; we keep only D40, the pothole class,
-and we drop the China drone subset because it is shot from above.
-MWPD, the Multi-Weather Pothole Detection dataset, is used only for testing: it comes from a
-different source and includes real rain, so it tells us how the model transfers.
-MWPD has no weather labels in its files, so we tagged every image ourselves.}
+We use two datasets. RDD2022 is a large multi-country road damage dataset, about forty-seven
+thousand images captured from vehicles, which is exactly our viewpoint. We keep only the pothole
+class, D40, and drop the China drone subset because it is shot from above. MWPD, the
+Multi-Weather Pothole Detection dataset, is used only for testing: it comes from a different
+source and includes real rain. It has no weather labels, so we tagged every image ourselves.}
 
 % ---------------------------------------------------------------- 5
 \begin{frame}{What the data looks like}
@@ -143,19 +135,14 @@ MWPD has no weather labels in its files, so we tagged every image ourselves.}
         \item \textbf{MWPD normal:} web close-ups (watermarks); the pothole fills the frame.
         \item \textbf{MWPD rainy:} water-filled, reflective potholes.
       \end{itemize}
-      \smallskip
-      $\Rightarrow$ C/D shift \textbf{viewpoint, scale and source}, not only the weather.
     \end{column}
   \end{columns}
 \end{frame}
 \note{%
-This is what the data actually looks like. The top row is RDD2022: the camera sits in a car and
-sees the whole street, so the pothole is usually a small box near the bottom of the image.
-The middle row is MWPD in normal weather: mostly close-up photos collected from the web, some
-with stock-photo watermarks, where the pothole fills a large part of the image. The bottom row
-is MWPD in the rain: potholes are filled with water and reflect the sky, so they look quite
-different. This is why the MWPD test sets measure more than rain: the viewpoint, the object
-size and the image source all change as well.}
+Here is what the data looks like. In RDD2022, on top, the camera sits in a car and sees the
+whole street, so potholes are small and far away. MWPD in normal weather, in the middle, is
+mostly close-up web photos where the pothole fills the frame. In the rain, at the bottom,
+potholes are filled with water and reflect the sky, so they look quite different.}
 
 % ---------------------------------------------------------------- 6
 \begin{frame}{Dataset analysis}
@@ -180,15 +167,12 @@ size and the image source all change as well.}
   train/val/test (70/15/15); negatives capped at \negRatioPct\%.
 \end{frame}
 \note{%
-Two observations. On the left: potholes are rare in RDD; only about one in ten annotated
-images contains one, and most come from Japan and India.
-On the right, and most important for this project: about a quarter of the RDD potholes are
-small objects, less than thirty-two pixels across at the usual input size. Those small
-potholes are exactly the ones people never report, and they are also the first thing a
-detector loses when we make it cheaper, for example by lowering the input resolution.
-So we will always report accuracy for small objects separately.
-Finally, RDD contains consecutive frames, so we split by blocks of fifty frames to keep near-
-identical images out of both train and test.}
+Two observations. On the left, potholes are rare: only about one in ten annotated RDD images
+contains one, mostly from Japan and India. On the right, the key point: about a quarter of RDD
+potholes are small objects, under thirty-two pixels at the usual input size. Those are the
+potholes people never report, and the first a detector loses when we make it cheaper, so we
+report small-object accuracy separately. Finally, RDD has consecutive frames, so we split in
+blocks of fifty frames to keep near-identical images out of both train and test.}
 
 % ---------------------------------------------------------------- 7
 \begin{frame}{Evaluation design}
@@ -214,11 +198,10 @@ identical images out of both train and test.}
   B, C, D answer RQ3: does the efficient model still work off the training distribution?
 \end{frame}
 \note{%
-For evaluation, set A, our clean RDD test split, measures the main accuracy. Sets B1 to B3 are
-the very same images with synthetic rain of increasing strength, and C and D are MWPD images in
-normal weather and in real rain. Those three groups are robustness checks for the third
-research question. Every model is reported on two axes: accuracy, including small-object
-accuracy, and cost, meaning parameters, GFLOPs and frames per second on both a GPU and a CPU.}
+Set A, our clean RDD test split, measures the main accuracy. B1 to B3 are the same images with
+synthetic rain of increasing strength, and C and D are MWPD in normal weather and in real rain;
+together they answer the third question. Every model is reported on two axes: accuracy,
+including small objects, and cost, meaning parameters, GFLOPs and speed on a GPU and a CPU.}
 
 % ---------------------------------------------------------------- 8
 \begin{frame}{Plan \& timeline}
@@ -240,11 +223,8 @@ accuracy, and cost, meaning parameters, GFLOPs and frames per second on both a G
   proxy for in-vehicle hardware. Everything is scripted and seeded for reproducibility.
 \end{frame}
 \note{%
-Steps one and two, the problem and the data, are finished and are what we presented today.
-Next we will train baselines from very small to large, and then apply efficiency levers:
-lower input resolution, a lightweight variant of our own, and reduced precision.
-The main result will be accuracy-versus-cost curves, with small-object accuracy and the
-robustness sets. Since the target is a car rather than a big GPU, we will also measure speed on
-a CPU. Thank you.}
+The problem and the data are done. Next we train baselines from tiny to large, apply the
+efficiency levers, and compare them with accuracy-versus-cost curves, including speed on a CPU
+as a stand-in for in-car hardware. Thank you.}
 
 \end{document}
