@@ -112,6 +112,26 @@ def read_list(list_path: Path) -> list[Path]:
     ]
 
 
+def count_missing(ref: pd.DataFrame, out_root: Path) -> int:
+    """Count images listed in ``rain_hashes.csv`` whose image or label file is missing on disk.
+
+    ``rain_hashes.csv`` is committed but the generated images are not, so on a fresh clone the
+    table exists while ``data/processed/rdd_rain/`` is empty.
+
+    Args:
+        ref: Contents of the committed ``rain_hashes.csv``.
+        out_root: Root of the generated rain folders (``data/processed/rdd_rain``).
+
+    Returns:
+        Number of listed images that are missing.
+    """
+    return sum(
+        not (out_root / level / "images" / file).exists()
+        or not (out_root / level / "labels" / f"{Path(file).stem}.txt").exists()
+        for level, file in zip(ref["level"], ref["file"], strict=True)
+    )
+
+
 def main() -> None:
     """CLI entry point."""
     parser = base_parser(__doc__ or "")
@@ -129,9 +149,24 @@ def main() -> None:
         images = images[: max(1, len(images) // 20)]
         out_root = out_root.with_name(out_root.name + "_quick")
     hash_csv = tables / "rain_hashes.csv"
-    if hash_csv.exists() and not args.force and not args.quick:
-        log.warning("%s exists: B1-B3 were already generated. Use --force to rebuild.", hash_csv)
-        return
+    ref = None
+    if hash_csv.exists() and not args.quick:
+        ref = pd.read_csv(hash_csv)
+        missing = count_missing(ref, out_root)
+        if not missing and not args.force:
+            log.warning(
+                "%s exists: B1-B3 were already generated. Use --force to rebuild.", hash_csv
+            )
+            return
+        if missing:
+            log.info(
+                "%s exists but %d/%d listed images are missing under %s (fresh clone?): "
+                "regenerating B1-B3",
+                hash_csv,
+                missing,
+                len(ref),
+                out_root,
+            )
     log.info("Generating %d levels x %d RDD test images", len(rain_cfg["levels"]), len(images))
     if args.dry_run:
         return
@@ -164,8 +199,22 @@ def main() -> None:
     if args.quick:
         log.info("--quick: hashes not recorded")
         return
+    new = pd.DataFrame(rows)
+    if ref is not None:  # reproducibility check against the previously recorded hashes
+        merged = new.merge(ref, on=["level", "file"], how="outer", suffixes=("", "_ref"))
+        n_diff = int((merged["sha256"] != merged["sha256_ref"]).sum())
+        if n_diff:
+            log.warning(
+                "%d/%d images differ from the recorded hashes (different OpenCV/albumentations "
+                "version or JPEG encoder?). Inspect with `git diff %s` before committing it.",
+                n_diff,
+                len(merged),
+                hash_csv,
+            )
+        else:
+            log.info("All %d image hashes match the recorded %s", len(new), hash_csv)
     tables.mkdir(parents=True, exist_ok=True)
-    pd.DataFrame(rows).to_csv(hash_csv, index=False)
+    new.to_csv(hash_csv, index=False)
     log.info("Wrote %d images and %s", len(rows), hash_csv)
 
 
