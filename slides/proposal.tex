@@ -127,6 +127,41 @@ different source and includes real rain, so it tells us how the model transfers.
 MWPD has no weather labels in its files, so we tagged every image ourselves.}
 
 % ---------------------------------------------------------------- 5
+\begin{frame}{What the data looks like}
+  \begin{columns}[c]
+    \begin{column}{0.56\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,height=0.80\textheight,keepaspectratio]{fig_samples_grid}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \footnotesize
+      Random positive test images; \textcolor{green!50!black}{green} = pothole box
+      after conversion to YOLO.
+      \begin{itemize}
+        \setlength{\itemsep}{3pt}
+        \item \textbf{RDD2022:} whole street scene from a car; potholes are
+          \alert{small and far away}.
+        \item \textbf{MWPD normal:} close-ups from the web (stock-photo watermarks);
+          the pothole fills the frame.
+        \item \textbf{MWPD rainy:} water-filled potholes with reflections ---
+          they look very different from dry ones.
+      \end{itemize}
+      \medskip
+      $\Rightarrow$ C/D test a real shift in \textbf{viewpoint, scale and source},
+      not only in weather.
+    \end{column}
+  \end{columns}
+\end{frame}
+\note{%
+This is what the data actually looks like. The top row is RDD2022: the camera sits in a car and
+sees the whole street, so the pothole is usually a small box near the bottom of the image.
+The middle row is MWPD in normal weather: mostly close-up photos collected from the web, some
+with stock-photo watermarks, where the pothole fills a large part of the image. The bottom row
+is MWPD in the rain: potholes are filled with water and reflect the sky, so they look quite
+different. This is why the MWPD test sets measure more than rain: the viewpoint, the object
+size and the image source all change as well.}
+
+% ---------------------------------------------------------------- 6
 \begin{frame}{Dataset analysis}
   \begin{columns}[T]
     \begin{column}{0.5\textwidth}
@@ -159,7 +194,7 @@ So we will always report accuracy for small objects separately.
 Finally, RDD contains consecutive frames, so we split by blocks of fifty frames to keep near-
 identical images out of both train and test.}
 
-% ---------------------------------------------------------------- 6
+% ---------------------------------------------------------------- 7
 \begin{frame}{Evaluation design}
   \centering\footnotesize
   \begin{tabular}{@{}llrl@{}}
@@ -189,7 +224,7 @@ normal weather and in real rain. Those three groups are robustness checks for th
 research question. Every model is reported on two axes: accuracy, including small-object
 accuracy, and cost, meaning parameters, GFLOPs and frames per second on both a GPU and a CPU.}
 
-% ---------------------------------------------------------------- 7
+% ---------------------------------------------------------------- 8
 \begin{frame}{Plan \& timeline}
   \small
   \begin{tabularx}{\textwidth}{@{}l X l@{}}
