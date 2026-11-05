@@ -1,0 +1,41 @@
+# Environment
+.venv/
+__pycache__/
+*.pyc
+.ruff_cache/
+
+# Data: raw and processed images are not redistributed (size, licenses); see README.
+data/raw/
+data/processed/*
+!data/processed/mwpd/
+data/processed/mwpd/*
+!data/processed/mwpd/weather_tags.csv
+!data/processed/splits/
+data/processed/splits/*
+!data/processed/splits/*.txt
+!data/processed/splits/assignments.csv
+
+# Generated / large outputs
+outputs/logs/
+outputs/runs/
+outputs/tag_weather.html
+*.pt
+*.pth
+*.onnx
+
+# LaTeX build files
+*.aux
+*.log
+*.nav
+*.out
+*.snm
+*.toc
+*.vrb
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# Packaging
+*.zip
+video/*
+!video/.gitkeep

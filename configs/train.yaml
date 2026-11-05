@@ -1,0 +1,14 @@
+# Common training hyper-parameters (identical for every model within a strategy).
+imgsz: 640
+epochs: 100
+patience: 20
+batch: -1          # Ultralytics auto-batch
+optimizer: auto
+cos_lr: true
+workers: 8
+device: 0
+p_rain: 0.5        # S1: probability of applying one random synthetic-rain level per training image
+seeds: [42, 43, 44]
+quick:
+  data_fraction: 0.05
+  epochs: 3

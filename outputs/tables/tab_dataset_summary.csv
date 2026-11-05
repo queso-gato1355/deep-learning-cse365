@@ -1,0 +1,8 @@
+Dataset,Split,Images,Boxes,Neg. images,Mean box area (%),Resolution
+RDD2022,train,3160,4497,630,1.53,512x512 – 4040x2044
+RDD2022,val,638,915,126,1.53,512x512 – 4040x2044
+RDD2022,test (A),708,1046,140,1.54,512x512 – 4040x2044
+MWPD,normal (C),681,1450,0,8.31,640x640 – 640x640
+MWPD,rainy (D_full),676,2658,0,6.93,640x640 – 640x640
+MWPD,rainy_train (S3),340,1270,0,7.79,640x640 – 640x640
+MWPD,"rainy (D_half, S3)",336,1388,0,6.14,640x640 – 640x640

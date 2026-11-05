@@ -1,0 +1,55 @@
+# nvidia-smi
+Mon Nov  2 21:49:32 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 610.88                 KMD Version: 610.88        CUDA UMD Version: 13.3     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                  Driver-Model | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA GeForce RTX 3090      WDDM  |   00000000:01:00.0  On |                  N/A |
+| 53%   35C    P8             58W /  390W |    3096MiB /  24576MiB |     46%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|    0   N/A  N/A            4752    C+G   ...Chrome\Application\chrome.exe      N/A      |
+|    0   N/A  N/A            6240    C+G   ...ntrolPanel\SystemSettings.exe      N/A      |
+|    0   N/A  N/A            7560    C+G   ....0.4314.58\msedgewebview2.exe      N/A      |
+|    0   N/A  N/A           10452    C+G   ...x40ttqa\iCloud\iCloudHome.exe      N/A      |
+|    0   N/A  N/A           10552    C+G   C:\Windows\explorer.exe               N/A      |
+|    0   N/A  N/A           11084    C+G   ...lus\logioptionsplus_agent.exe      N/A      |
+|    0   N/A  N/A           11292    C+G   ...em32\ApplicationFrameHost.exe      N/A      |
+|    0   N/A  N/A           12408    C+G   ...indows\System32\ShellHost.exe      N/A      |
+|    0   N/A  N/A           13476    C+G   ...2txyewy\CrossDeviceResume.exe      N/A      |
+|    0   N/A  N/A           15128    C+G   ..._cw5n1h2txyewy\SearchHost.exe      N/A      |
+|    0   N/A  N/A           15136    C+G   ...y\StartMenuExperienceHost.exe      N/A      |
+|    0   N/A  N/A           15224    C+G   ...cw5n1h2txyewy\WidgetBoard.exe      N/A      |
+|    0   N/A  N/A           15248    C+G   ...n\AdobeNotificationClient.exe      N/A      |
+|    0   N/A  N/A           17084    C+G   ...5n1h2txyewy\TextInputHost.exe      N/A      |
+|    0   N/A  N/A           18020    C+G   ....0.4314.58\msedgewebview2.exe      N/A      |
+|    0   N/A  N/A           18388    C+G   ...ms\Microsoft VS Code\Code.exe      N/A      |
+|    0   N/A  N/A           19868    C+G   ...8bbwe\PhoneExperienceHost.exe      N/A      |
+|    0   N/A  N/A           21192    C+G   ...cord\app-1.0.9266\Discord.exe      N/A      |
+|    0   N/A  N/A           21324    C+G   ...\cef.win64\steamwebhelper.exe      N/A      |
+|    0   N/A  N/A           21580    C+G   ... Magician\SamsungMagician.exe      N/A      |
+|    0   N/A  N/A           22592    C+G   ...engine\bin\webwallpaper64.exe      N/A      |
+|    0   N/A  N/A           23236    C+G   ...engine\bin\webwallpaper64.exe      N/A      |
+|    0   N/A  N/A           25212    C+G   ...rive Mount\RaiDrive.Mount.exe      N/A      |
+|    0   N/A  N/A           28556    C+G   ...nd to PC\vFlat Send to PC.exe      N/A      |
+|    0   N/A  N/A           29724    C+G   ...Chrome\Application\chrome.exe      N/A      |
+|    0   N/A  N/A           30032    C+G   ...26wp6bftszj\TranslucentTB.exe      N/A      |
+|    0   N/A  N/A           30860    C+G   ...ndows\System32\mmgaserver.exe      N/A      |
+|    0   N/A  N/A           31216    C+G   ...0ttqa\iCloud\iCloudPhotos.exe      N/A      |
+|    0   N/A  N/A           36416    C+G   ..._pzs8sxrjxfjjc\app\claude.exe      N/A      |
+|    0   N/A  N/A           38664    C+G   ..._pzs8sxrjxfjjc\app\claude.exe      N/A      |
++-----------------------------------------------------------------------------------------+
+# torch
+python 3.11.17
+torch 2.11.0+cu128 cuda 12.8 cudnn 91900
+gpu NVIDIA GeForce RTX 3090
+cpu AMD64 Family 26 Model 68 Stepping 0, AuthenticAMD 32 threads

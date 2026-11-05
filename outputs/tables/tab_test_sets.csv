@@ -1,0 +1,7 @@
+ID,Source,Condition,Images,Purpose
+A,RDD2022 own test split,clear,708,baseline
+B1,A + synthetic rain,drizzle,708,pure rain effect (A→B)
+B2,A + synthetic rain,heavy,708,pure rain effect (A→B)
+B3,A + synthetic rain,torrential,708,pure rain effect (A→B)
+C,MWPD,normal weather,681,domain gap (A→C)
+D,MWPD,real rain,676,real rain effect (C→D)

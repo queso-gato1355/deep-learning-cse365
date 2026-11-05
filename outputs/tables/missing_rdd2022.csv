@@ -1,0 +1,7 @@
+kind,split_dir,file
+unlabeled_folder,RDD2022/China_MotorBike/test,*
+unlabeled_folder,RDD2022/Czech/test,*
+unlabeled_folder,RDD2022/India/test,*
+unlabeled_folder,RDD2022/Japan/test,*
+unlabeled_folder,RDD2022/Norway/test,*
+unlabeled_folder,RDD2022/United_States/test,*

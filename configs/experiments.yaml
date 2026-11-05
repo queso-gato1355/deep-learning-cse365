@@ -1,0 +1,36 @@
+# Experiment matrix. run_id = {model}_{strategy}_s{seed}
+models:
+  yolov8n: {weights: yolov8n.pt}
+  yolov8s: {weights: yolov8s.pt}
+  rtdetr-l: {weights: rtdetr-l.pt}
+  yolov8s_cbam: {cfg: src/models/yolov8s_cbam.yaml, init_from: yolov8s.pt}
+
+strategies:
+  S0: {name: clean, train_data: rdd, rain_aug: false}
+  S1: {name: rainaug, train_data: rdd, rain_aug: true}
+  S2: {name: derain, reuse: S0, test_time_derain: true}
+  S3: {name: realrain, train_data: rdd+mwpd_rainy_train, rain_aug: false, min_rainy_images: 200}
+
+test_sets: [A, B1, B2, B3, C, D]
+
+experiments:
+  E1:
+    desc: Main comparison
+    models: [yolov8n, yolov8s, rtdetr-l, yolov8s_cbam]
+    strategies: [S0, S1]
+    seeds: [42, 43, 44]
+  E2:
+    desc: Test-time deraining
+    models: [yolov8s]
+    strategies: [S2]
+    seeds: [42]
+  E3:
+    desc: Real-rain upper bound
+    models: [yolov8s]
+    strategies: [S3]
+    seeds: [42]
+  E4:
+    desc: Ablation (shares runs with E1)
+    models: [yolov8s, yolov8s_cbam]
+    strategies: [S0, S1]
+    seeds: [42, 43, 44]

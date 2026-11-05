@@ -1,0 +1,49 @@
+# Paths, split ratios and class mapping. All paths are relative to the project root.
+paths:
+  raw_rdd: data/raw/rdd2022
+  raw_mwpd: data/raw/mwpd
+  downloads: data/raw/_downloads
+  processed: data/processed
+  processed_rdd: data/processed/rdd
+  processed_mwpd: data/processed/mwpd
+  splits: data/processed/splits
+  rain: data/processed/rdd_rain
+  derained: data/processed/derained
+  outputs: outputs
+  figures: outputs/figures
+  tables: outputs/tables
+  logs: outputs/logs
+  results: outputs/results/results.csv
+  runs: outputs/runs
+  env: outputs/env
+
+sources:
+  rdd2022:
+    # FigShare mirror (the sekilab S3 per-country links returned HTTP 403 on 2026-11-02).
+    url: https://ndownloader.figshare.com/files/38030910
+    filename: RDD2022_released_through_CRDDC2022.zip
+    md5: b62bd51d2ffcfaa76c60f234f0cc2bb3
+    license: CC BY 4.0
+  mwpd:
+    api: https://data.mendeley.com/public-api/datasets/s5hx9n2jc3
+    version: 2
+    doi: 10.17632/s5hx9n2jc3.2
+    license: CC BY 4.0
+
+rdd:
+  countries: [Japan, India, Czech, Norway, United_States, China_MotorBike]
+  excluded_countries:
+    China_Drone: "Top-down drone viewpoint does not match the vehicle-mounted viewpoint of the other subsets and of MWPD."
+  source_class: D40
+  neg_ratio: 0.2          # max fraction of negative (no-D40) images in each final split
+  block_size: 50          # consecutive frames grouped together before splitting (leakage guard)
+  split_ratios: {train: 0.70, val: 0.15, test: 0.15}
+
+mwpd:
+  # weather/lighting assignment rule is fixed after src/data/inspect.py (see configs/mwpd_tags.yaml)
+  rainy_train_fraction: 0.5   # only used by strategy S3
+
+classes:
+  names: [pothole]
+
+seed: 42

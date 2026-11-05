@@ -1,0 +1,53 @@
+# Synthetic rain levels (albumentations 2.0.x). Used once to build test sets B1-B3 from RDD test (A),
+# and on-the-fly for strategy S1 (train split only).
+seed: 42
+# Darkening is cumulative (RandomRain brightness_coefficient x brightness/contrast shift);
+# v1 values (0.7 and -0.3/-0.3 at torrential) made B3 nearly black, so they were halved.
+levels:
+  drizzle:     # B1
+    rain:
+      rain_type: drizzle
+      slant_range: [-10, 10]
+      drop_width: 1
+      drop_color: [200, 200, 200]
+      blur_value: 3
+      brightness_coefficient: 0.95
+    brightness_contrast:
+      brightness_limit: [-0.05, 0.0]
+      contrast_limit: [-0.05, 0.0]
+    blur:
+      type: gaussian
+      blur_limit: [3, 3]
+      sigma_limit: [0.3, 0.6]
+  heavy:       # B2
+    rain:
+      rain_type: heavy
+      slant_range: [-15, 15]
+      drop_width: 1
+      drop_color: [190, 190, 190]
+      blur_value: 5
+      brightness_coefficient: 0.9
+    brightness_contrast:
+      brightness_limit: [-0.12, -0.06]
+      contrast_limit: [-0.12, -0.05]
+    blur:
+      type: motion
+      blur_limit: [3, 5]
+  torrential:  # B3
+    rain:
+      rain_type: torrential
+      slant_range: [-20, 20]
+      drop_width: 2
+      drop_color: [180, 180, 180]
+      blur_value: 7
+      brightness_coefficient: 0.85
+    brightness_contrast:
+      brightness_limit: [-0.20, -0.12]
+      contrast_limit: [-0.20, -0.10]
+    blur:
+      type: motion
+      blur_limit: [5, 7]
+
+limitations: >-
+  Synthetic rain reproduces only rain streaks, global darkening and blur. It does NOT reproduce
+  road-surface specular reflections, droplets on the camera lens, or water-filled potholes.

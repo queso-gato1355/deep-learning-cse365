@@ -1,0 +1,16 @@
+\begin{table}[t]
+\caption{Fixed test sets used in all experiments.}
+\label{tab:tab_test_sets}
+\begin{tabular}{lllll}
+\toprule
+ID & Source & Condition & Images & Purpose \\
+\midrule
+A & RDD2022 own test split & clear & 708 & baseline \\
+B1 & A + synthetic rain & drizzle & 708 & pure rain effect (A$\to$B) \\
+B2 & A + synthetic rain & heavy & 708 & pure rain effect (A$\to$B) \\
+B3 & A + synthetic rain & torrential & 708 & pure rain effect (A$\to$B) \\
+C & MWPD & normal weather & 681 & domain gap (A$\to$C) \\
+D & MWPD & real rain & 676 & real rain effect (C$\to$D) \\
+\bottomrule
+\end{tabular}
+\end{table}
