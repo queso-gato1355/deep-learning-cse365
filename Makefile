@@ -6,7 +6,7 @@ PY ?= .venv/bin/python
 endif
 ARGS ?=
 
-.PHONY: help env lint download inspect tag convert split rain eda data proposal
+.PHONY: help env lint download inspect tag convert split rain eda data proposal kernel notebook
 
 help:
 	@echo "make env       - create .venv (uv, Python 3.11) and install requirements"
@@ -14,6 +14,8 @@ help:
 	@echo "make download  - fetch MWPD, verify+extract RDD2022 (zip downloaded beforehand)"
 	@echo "make data      - Phase 1: inspect, convert, split, synthetic rain, EDA"
 	@echo "make proposal  - build slides/proposal.pdf and slides/proposal-notes.pdf (speaker notes)"
+	@echo "make kernel    - register .venv as Jupyter kernel 'pothole-venv'"
+	@echo "make notebook  - rebuild and execute notebooks/01_model_overview.ipynb"
 	@echo "make tag       - rebuild outputs/tag_weather.html (manual MWPD weather tags)"
 	@echo "ARGS='--dry-run' or ARGS='--force' are passed to every Phase-1 script"
 
@@ -51,3 +53,10 @@ data: eda
 
 proposal:
 	cd slides && latexmk -pdf -interaction=nonstopmode proposal.tex proposal-notes.tex
+
+kernel:
+	$(PY) -m ipykernel install --user --name pothole-venv --display-name "Python 3.11 (.venv pothole)"
+
+notebook:
+	$(PY) notebooks/build_01_model_overview.py
+	cd notebooks && ../$(PY) -m jupyter nbconvert --to notebook --execute --inplace 01_model_overview.ipynb

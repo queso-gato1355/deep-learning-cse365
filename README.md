@@ -24,6 +24,12 @@ uv venv --python 3.11 .venv
 uv pip install --python .venv/Scripts/python.exe -r requirements.txt   # .venv/bin/python on Linux/macOS
 ```
 
+## Notebooks
+
+`notebooks/01_model_overview.ipynb` explains the model design (in Korean) with diagrams and
+measured params/GFLOPs; no training. Run `make kernel` once, then open it with the
+`Python 3.11 (.venv pothole)` kernel, or rebuild it with `make notebook`.
+
 ## Data
 
 Raw and processed images are not in this repository.
