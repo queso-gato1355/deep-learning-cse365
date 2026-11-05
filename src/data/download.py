@@ -122,19 +122,41 @@ def download_mwpd(dry_run: bool) -> None:
     log.info("MWPD downloaded to %s", out)
 
 
-def extract_rdd(dry_run: bool) -> None:
+def extract_rdd(dry_run: bool, force: bool = False) -> None:
     """Verify the RDD2022 zip (downloaded with curl) and extract it into ``data/raw/rdd2022/``.
 
     Everything is extracted unchanged (including excluded countries); filtering happens in
     ``convert_rdd.py`` so the raw copy stays a faithful mirror of the release.
 
+    A ``.extracted`` marker is written once every inner per-country zip has been unpacked, so
+    later runs skip the (slow) md5 check and extraction. An interrupted run leaves inner zips
+    behind; the next run resumes by unpacking only those.
+
     Args:
         dry_run: Only verify and list.
+        force: Re-extract even if the marker exists.
     """
     cfg = load_config("data")
     src = cfg["sources"]["rdd2022"]
     zpath = project_path(cfg["paths"]["downloads"]) / "rdd2022" / src["filename"]
     out = project_path(cfg["paths"]["raw_rdd"])
+    marker = out / ".extracted"
+    if marker.exists() and not force:
+        log.info("RDD2022 already extracted (%s); use --force to redo", marker)
+        return
+    leftovers = sorted(out.rglob("*.zip")) if out.exists() else []
+    if leftovers and not force:
+        log.info("Resuming interrupted extraction: %d inner archive(s) left", len(leftovers))
+        if dry_run:
+            return
+        try:
+            extract_inner(out)
+        except zipfile.BadZipFile:
+            log.warning("A leftover inner archive is truncated; re-extracting the outer zip")
+        else:
+            marker.write_text("ok\n", encoding="utf-8")
+            log.info("RDD2022 extracted to %s", out)
+            return
     if not zpath.exists():
         log.error("Missing %s. Download it from %s first.", zpath, src["url"])
         return
@@ -145,19 +167,19 @@ def extract_rdd(dry_run: bool) -> None:
     if dry_run:
         return
     out.mkdir(parents=True, exist_ok=True)
-    extract_nested(zpath, out)
+    with zipfile.ZipFile(zpath) as zf:
+        zf.extractall(out)
+    extract_inner(out)
+    marker.write_text("ok\n", encoding="utf-8")
     log.info("RDD2022 extracted to %s", out)
 
 
-def extract_nested(zpath: Path, out: Path) -> None:
-    """Extract a zip, recursively extracting inner zips into sibling folders.
+def extract_inner(out: Path) -> None:
+    """Extract every zip under ``out`` into its own folder, deleting each zip once unpacked.
 
     Args:
-        zpath: Zip file.
-        out: Destination directory.
+        out: Directory containing the per-country zips.
     """
-    with zipfile.ZipFile(zpath) as zf:
-        zf.extractall(out)
     for inner in sorted(out.rglob("*.zip")):
         log.info("Extracting inner archive %s", inner.name)
         with zipfile.ZipFile(inner) as zf:
@@ -174,7 +196,7 @@ def main() -> None:
     if args.dataset in ("mwpd", "all"):
         download_mwpd(args.dry_run)
     if args.dataset in ("rdd", "all"):
-        extract_rdd(args.dry_run)
+        extract_rdd(args.dry_run, args.force)
 
 
 if __name__ == "__main__":
