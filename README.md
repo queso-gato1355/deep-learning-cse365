@@ -1,10 +1,19 @@
-# Rain-Robust Pothole Detection
+# Lightweight Pothole Detection for Vehicle-Based Road Monitoring
 
 CSE36501 Deep Learning, UNIST, Fall 2026.
 
-- **RQ1.** How much does a pothole detector trained only on clear-weather images degrade under rain?
-- **RQ2.** Can synthetic rain overlays serve as a proxy for real rainy conditions?
-- **RQ3.** Which strategy improves rain robustness most: (a) synthetic-rain augmentation, (b) architectural change (attention module), or (c) test-time deraining?
+Potholes are currently found by road-agency inspections or citizen reports, so small potholes
+and those on rural roads are reported late or never. Autonomous vehicles could detect potholes
+and report them automatically, but the detector must be cheap enough to run alongside the
+driving stack. This project asks whether such an efficient detector can be built.
+
+- **RQ1.** How small and fast can a pothole detector be while keeping useful accuracy? (accuracy–efficiency trade-off)
+- **RQ2.** Which efficiency lever costs the least accuracy: a smaller model, a lower input resolution, a lightweight module design, or reduced precision?
+- **RQ3.** Does an efficient model stay reliable in conditions a car will meet: other countries and cameras, and rain?
+
+Every model is reported as accuracy (mAP50, mAP50-95, recall, small-object AP) versus cost
+(params, GFLOPs, FPS on GPU and CPU). Test sets: A (RDD2022 test, main), B1–B3 (A with
+synthetic rain), C (MWPD normal), D (MWPD rainy).
 
 **Status:** Phase 1 (data + EDA) and Phase 1.5 (proposal slides) are complete. Training, evaluation and the report follow.
 

@@ -16,8 +16,8 @@
 
 \newcommand{\researchq}[2]{\textbf{RQ#1.}~#2}
 
-\title{Rain-Robust Pothole Detection}
-\subtitle{How much does rain hurt a pothole detector, and what helps?\\[2pt]
+\title{Lightweight Pothole Detection for Vehicle-Based Road Monitoring}
+\subtitle{Can a small, fast detector find potholes well enough to report them automatically?\\[2pt]
   \small CSE36501 Deep Learning --- Project Proposal}
 \author{[Name] \quad ([Student ID])}
 \institute{UNIST, Fall 2026}
@@ -28,64 +28,66 @@
 % ---------------------------------------------------------------- 1
 \maketitle
 \note{%
-Hello, I am [Name]. My project is about rain-robust pothole detection.
-In short, I want to measure how much a pothole detector that was trained on clear-weather
-images breaks down when it rains, and then test which fix helps the most.
-In this proposal I will cover the problem definition and the datasets; models and
-experiments will come in the final presentation.}
+Hello, I am [Name]. My project is about lightweight pothole detection for vehicle-based road
+monitoring. The idea is that future autonomous cars could detect potholes on their own and
+report them to the road authority right away, so I want to find out whether I can build a
+detector that is accurate enough while being small and fast enough to run on a car.
+Today I will cover the problem definition and the datasets.}
 
 % ---------------------------------------------------------------- 2
 \begin{frame}{Motivation}
   \begin{itemize}
-    \item Potholes cause accidents, tyre and suspension damage, and costly repairs.
-    \item Vision-based road monitoring and driver assistance increasingly detect them
-          automatically from vehicle cameras.
-    \item \alert{Rain is exactly when potholes are most dangerous} --- and hardest to see:
+    \item Today potholes are found by \textbf{road-agency inspections} or \textbf{citizen reports}.
       \begin{itemize}
-        \item water fills the hole and hides its depth and edges,
-        \item wet asphalt reflects light; rain streaks and darkness lower contrast.
+        \item small potholes are rarely reported,
+        \item potholes on rural / suburban roads are reported late.
       \end{itemize}
-    \item Public pothole detectors are trained almost entirely on \emph{clear-weather} images.
+    \item Once autonomous vehicles are common, every car already sees the road
+      $\Rightarrow$ it could \alert{detect potholes and report their location automatically}.
+    \item But the car's compute is reserved for driving:
+      a monitoring side-task must be \alert{efficient, fast, and cheap}.
   \end{itemize}
   \vfill
-  \centering\large A detector that fails in the rain fails when it is needed most.
+  \centering\large Goal: a pothole detector that is accurate enough \emph{and} light enough
+  to run alongside the driving stack.
 \end{frame}
 \note{%
-Potholes are not just an annoyance: they damage vehicles and cause accidents, and many
-cities and car makers now try to detect them automatically from cameras.
-The problem is that rain is precisely the condition where potholes are most dangerous,
-because water fills them and hides their depth, and wet asphalt reflects light.
-At the same time, almost all public training data is captured in good weather.
-So there is a mismatch between where these models are trained and where they matter most.}
+Today, potholes are found in two ways: road agency staff inspect roads, or people report
+them. But most people do not bother to report small potholes, and on rural or suburban roads
+reports can come very late. Once autonomous cars are common, every car is effectively a road
+sensor, so it could detect a pothole and send its location to the road agency immediately.
+The catch is that the car's computer is busy driving. A pothole detector is only a side task,
+so it has to be efficient, fast and use little computation. My question is whether I can
+build such a model myself.}
 
 % ---------------------------------------------------------------- 3
 \begin{frame}{Problem statement}
   \textbf{Task.} Single-class object detection (bounding boxes) of potholes in
-  vehicle- or pedestrian-view road images.
+  vehicle-view road images.
 
   \medskip
-  \textbf{Setting.} Train on clear-weather road images; test on clear, synthetic-rain
-  and real-rain images.
+  \textbf{Constraint.} Low compute: we report accuracy \emph{together with}
+  parameters, GFLOPs and inference speed (FPS).
 
   \bigskip
   \begin{itemize}
-    \item[] \researchq{1}{How much does a pothole detector trained only on clear-weather images
-      degrade under rain?}
-    \item[] \researchq{2}{Can synthetic rain overlays serve as a proxy for real rainy conditions?}
-    \item[] \researchq{3}{Which strategy improves rain robustness most: (a) synthetic-rain
-      augmentation, (b) architectural change (attention module), or (c) test-time
-      deraining?}
+    \item[] \researchq{1}{How small and fast can a pothole detector be while keeping
+      useful accuracy? (accuracy--efficiency trade-off)}
+    \item[] \researchq{2}{Which efficiency lever costs the least accuracy: a smaller model,
+      a lower input resolution, a lightweight module design, or reduced precision?}
+    \item[] \researchq{3}{Does an efficient model stay reliable in conditions a car will meet
+      --- other countries and cameras, and rain?}
   \end{itemize}
 \end{frame}
 \note{%
-Formally, the task is single-class pothole detection with bounding boxes.
-I train on clear-weather images and test under three conditions: clear, synthetic rain,
-and real rain. This gives three research questions.
-First, how large is the drop under rain?
-Second, does synthetic rain behave like real rain, so that we could benchmark and train
-with cheap synthetic data?
-And third, among three common fixes, augmentation, an attention module, and a deraining
-pre-processor, which one actually helps most?}
+Formally, the task is single-class pothole detection with bounding boxes, under a compute
+constraint. So every result will be reported as accuracy together with model size, GFLOPs and
+speed. This gives three research questions.
+First: how small and fast can the detector get before accuracy becomes useless?
+Second: there are several ways to make a model cheaper, a smaller network, smaller input
+images, a lighter module design, or lower numerical precision. Which one hurts accuracy least?
+And third: a car will drive in other countries and in the rain, so does the efficient model
+still work there?}
 
 % ---------------------------------------------------------------- 4
 \begin{frame}{Datasets}
@@ -95,7 +97,7 @@ pre-processor, which one actually helps most?}
     \toprule
     & RDD2022 \normalfont(Arya et al., 2024) & MWPD \normalfont(Parvin et al., 2025) \\
     \midrule
-    Role & clear-weather train / val / test & external test: real normal vs.\ rain \\
+    Role & main train / val / test & external robustness test (domain, rain) \\
     Source & vehicle-mounted cameras \& phones, 6 countries & mixed web, news and
       phone images \\
     Size & 47{,}420 images, 4 damage types; we keep \textbf{D40 = pothole}
@@ -108,8 +110,8 @@ pre-processor, which one actually helps most?}
   \smallskip
   \begin{itemize}\scriptsize
     \setlength{\itemsep}{1pt}
-    \item \textbf{Why these:} RDD2022 is the largest public multi-country road-damage set;
-      MWPD is, to our knowledge, the only public pothole set with real rain.
+    \item \textbf{Why these:} RDD2022 is the largest public multi-country road-damage set,
+      captured from vehicles --- the target viewpoint; MWPD adds a different source and real rain.
     \item China\_Drone excluded (top-down drone view $\neq$ vehicle view).
     \item MWPD ships \alert{without weather labels} $\Rightarrow$ every image was tagged
       normal/rainy (pre-tag + manual review).
@@ -117,12 +119,12 @@ pre-processor, which one actually helps most?}
 \end{frame}
 \note{%
 I use two datasets. RDD2022 is the large multi-country road damage dataset from the CRDDC
-challenge, with about forty-seven thousand images. It has several damage classes; I keep
-only D40, which is the pothole class. I drop the China drone subset because it is shot from
-above and does not match a car's view.
-For real rain I use MWPD, the Multi-Weather Pothole Detection dataset, which contains
-normal and rainy images. One important finding: although MWPD describes rainy conditions,
-the files carry no weather label, so I tagged every image as normal or rainy myself.}
+challenge, about forty-seven thousand images captured from vehicles, which is exactly the
+viewpoint we care about. It has several damage classes; I keep only D40, the pothole class,
+and I drop the China drone subset because it is shot from above.
+MWPD, the Multi-Weather Pothole Detection dataset, is used only for testing: it comes from a
+different source and includes real rain, so it tells us how the model transfers.
+MWPD has no weather labels in its files, so I tagged every image myself.}
 
 % ---------------------------------------------------------------- 5
 \begin{frame}{Dataset analysis}
@@ -136,57 +138,56 @@ the files carry no weather label, so I tagged every image as normal or rainy mys
     \begin{column}{0.5\textwidth}
       \centering
       \includegraphics[width=\linewidth]{fig_box_size}
-      \footnotesize MWPD potholes are much larger (close-up photos):
-      \pctSmallRdd\% of RDD boxes are COCO-small vs.\ \pctSmallMwpd\% in MWPD.
+      \footnotesize \alert{\pctSmallRdd\% of RDD potholes are COCO-small} ($<32^2$\,px at 640);
+      MWPD: \pctSmallMwpd\%.
     \end{column}
   \end{columns}
   \medskip
-  \footnotesize\textbf{Leakage-safe split:} RDD frames are grouped into blocks of
-  \blockSize{} consecutive frames per country; whole blocks go to train/val/test (70/15/15).
-  Negatives capped at \negRatioPct\% per split.
+  \footnotesize\textbf{Why it matters:} small potholes are exactly the ones people do not
+  report --- and the first to disappear when we shrink the model or the input resolution.\\
+  \textbf{Leakage-safe split:} blocks of \blockSize{} consecutive frames go whole to
+  train/val/test (70/15/15); negatives capped at \negRatioPct\%.
 \end{frame}
 \note{%
-Two things stand out in the data. On the left: potholes are rare in RDD; only about one
-in ten annotated images contains one, and most come from Japan and India.
-On the right: object size differs a lot. RDD potholes are small and far away, as seen from
-a dashcam, while MWPD potholes are mostly large close-ups. So part of any drop from RDD
-to MWPD will be a size and viewpoint effect, not weather, and I will report size-wise AP
-to separate them.
-Finally, because RDD contains video-like consecutive frames, I split by blocks of fifty
-frames so near-identical images never end up in both train and test.}
+Two observations. On the left: potholes are rare in RDD; only about one in ten annotated
+images contains one, and most come from Japan and India.
+On the right, and most important for this project: about a quarter of the RDD potholes are
+small objects, less than thirty-two pixels across at the usual input size. Those small
+potholes are exactly the ones people never report, and they are also the first thing a
+detector loses when we make it cheaper, for example by lowering the input resolution.
+So I will always report accuracy for small objects separately.
+Finally, RDD contains consecutive frames, so I split by blocks of fifty frames to keep near-
+identical images out of both train and test.}
 
 % ---------------------------------------------------------------- 6
-\begin{frame}{Test-set design}
+\begin{frame}{Evaluation design}
   \centering\footnotesize
   \begin{tabular}{@{}llrl@{}}
     \toprule
     ID & Composition & Images & Purpose \\
     \midrule
-    A & RDD2022 own test split (clear) & \nA & baseline \\
-    B1/B2/B3 & \emph{same images} as A + synthetic drizzle / heavy / torrential & \nB{} each
-      & pure rain effect \\
-    C & MWPD normal weather & \nC & domain gap \\
-    D & MWPD rainy & \nD & real rain effect \\
+    A & RDD2022 own test split (clear) & \nA & \textbf{main accuracy} \\
+    B1/B2/B3 & \emph{same images} as A + synthetic drizzle/heavy/torrential & \nB{} each
+      & rain robustness \\
+    C & MWPD normal weather & \nC & new source / camera \\
+    D & MWPD rainy & \nD & real rain \\
     \bottomrule
   \end{tabular}
 
   \smallskip
-  \includegraphics[width=0.88\textwidth]{fig_rain_levels}
+  \includegraphics[width=0.84\textwidth]{fig_rain_levels}
 
   \footnotesize
-  A$\to$B: synthetic rain only \quad
-  A$\to$C: domain (country, camera, size) \quad
-  C$\to$D: real rain, same source \quad
-  \alert{(A$\to$B) vs.\ (C$\to$D): is synthetic rain a valid proxy? (RQ2)}
+  Every model is reported as \textbf{accuracy} (mAP50, mAP50-95, recall, small-object AP)
+  \textbf{vs.\ cost} (params, GFLOPs, FPS on GPU and CPU).\\
+  B, C, D answer RQ3: does the efficient model still work off the training distribution?
 \end{frame}
 \note{%
-This is the core of the design. Set A is my clean RDD test split. B1 to B3 are the very same
-images with synthetic rain of increasing strength, so any change from A to B is caused by
-rain alone. C and D come from MWPD: normal and rainy. A to C measures the domain gap, and
-C to D measures the effect of real rain within the same source.
-Comparing the A-to-B drop with the C-to-D drop answers whether synthetic rain is a fair
-stand-in for real rain. Note that synthetic rain only adds streaks, darkening and blur; it
-cannot reproduce water-filled potholes or reflections, which is exactly what we may see in D.}
+For evaluation, set A, my clean RDD test split, measures the main accuracy. Sets B1 to B3 are
+the very same images with synthetic rain of increasing strength, and C and D are MWPD images in
+normal weather and in real rain. Those three groups are robustness checks for the third
+research question. Every model is reported on two axes: accuracy, including small-object
+accuracy, and cost, meaning parameters, GFLOPs and frames per second on both a GPU and a CPU.}
 
 % ---------------------------------------------------------------- 7
 \begin{frame}{Plan \& timeline}
@@ -195,24 +196,24 @@ cannot reproduce water-filled potholes or reflections, which is exactly what we 
     \toprule
     Step & Content & Status \\
     \midrule
-    1--2 & Problem, datasets, splits, test sets A--D & \alert{done (this talk)} \\
-    3 & Models: YOLOv8n/s, RT-DETR-L, YOLOv8s + CBAM (ours);
-        strategies: clean, rain-aug, deraining, real-rain upper bound & next \\
-    4 & Evaluation: mAP50(-95), recall, relative drop, size-wise AP, FPS; 3 seeds & \\
-    5 & Analysis, failure cases, Grad-CAM; report \& final video & \\
+    1--2 & Problem, datasets, splits, evaluation sets A--D & \alert{done (this talk)} \\
+    3 & Baselines from tiny to large (YOLOv8n/s, RT-DETR-L as accuracy reference);
+        efficiency levers: input resolution, lightweight own variant, FP16/INT8 & next \\
+    4 & Accuracy--cost curves; small-object AP; robustness on B/C/D; 3 seeds & \\
+    5 & Analysis, failure cases; report \& final video & \\
     \bottomrule
   \end{tabularx}
 
   \bigskip
-  \footnotesize Compute: one RTX 3090 (24\,GB). Everything is scripted
-  (\texttt{make data}, \texttt{make train}, \dots) and seeded for reproducibility.
+  \footnotesize Compute: one RTX 3090 (24\,GB) for training; speed also measured on CPU as a
+  proxy for in-vehicle hardware. Everything is scripted and seeded for reproducibility.
 \end{frame}
 \note{%
 Steps one and two, the problem and the data, are finished and are what I presented today.
-Next I will train four detectors, two YOLOv8 sizes, the transformer-based RT-DETR, and my own
-YOLOv8 variant with CBAM attention, under clean training, synthetic-rain augmentation,
-test-time deraining, and real-rain training as an upper bound. I will evaluate them on all
-six test sets with three seeds each, and finish with failure analysis and Grad-CAM.
-Thank you.}
+Next I will train baselines from very small to large, and then apply efficiency levers:
+lower input resolution, a lightweight variant of my own, and reduced precision.
+The main result will be accuracy-versus-cost curves, with small-object accuracy and the
+robustness sets. Since the target is a car rather than a big GPU, I will also measure speed on
+a CPU. Thank you.}
 
 \end{document}
