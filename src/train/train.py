@@ -5,8 +5,11 @@ Usage:
     python -m src.train.train --exp E1 --yes             # train (finished runs are skipped)
     python -m src.train.train --exp E1 --quick --yes     # 5% data, 3 epochs, outputs/runs_quick
     python -m src.train.train --exp E1 --models yolo26n --seeds 42 --yes
+    python -m src.train.train --exp E1 --finalize        # write run_meta.json for runs whose
+                                                         # training finished but the process died
 
 Weights land in ``outputs/runs/{run_id}/weights/best.pt`` plus a ``run_meta.json`` summary.
+On Google Colab, ``colab_overrides`` from ``configs/train.yaml`` replace the matching settings.
 Pretrained weights are downloaded once into ``outputs/weights/`` (git-ignored).
 ``--offline`` skips the weight and AMP-check downloads and disables plots: use it only to test the
 pipeline without internet; such runs start from random weights. (Ultralytics may still fetch its
@@ -249,8 +252,33 @@ def train_one(r: Run, tcfg: dict, runs_dir: Path, quick: bool, offline: bool) ->
     t0 = time.time()
     model.train(**args)
     wall = time.time() - t0
+    pretrained = f"{loaded}/{total}" if loaded is not None else None
+    return write_meta(r, runs_dir / r.run_id, wall, pretrained, quick, offline)
 
-    run_dir = runs_dir / r.run_id
+
+def write_meta(
+    r: Run,
+    run_dir: Path,
+    wall: float,
+    pretrained: str | None,
+    quick: bool,
+    offline: bool,
+    extra: dict | None = None,
+) -> dict:
+    """Summarize a run from its ``results.csv`` and write ``run_meta.json``.
+
+    Args:
+        r: Run spec.
+        run_dir: The run's output folder.
+        wall: Training wall time in seconds.
+        pretrained: ``"loaded/total"`` pretrained tensors, or None.
+        quick: Pipeline-check mode.
+        offline: Run without downloads.
+        extra: Additional fields to record.
+
+    Returns:
+        The summary.
+    """
     res = pd.read_csv(run_dir / "results.csv")
     res.columns = [c.strip() for c in res.columns]
     best = res.loc[res["metrics/mAP50-95(B)"].idxmax()]
@@ -259,7 +287,7 @@ def train_one(r: Run, tcfg: dict, runs_dir: Path, quick: bool, offline: bool) ->
         **asdict(r),
         "quick": quick,
         "offline": offline,
-        "pretrained_tensors": f"{loaded}/{total}" if loaded is not None else None,
+        "pretrained_tensors": pretrained,
         "params_M": round(params, 3),
         "gflops": round(gf, 3),
         "epochs_done": len(res),
@@ -272,9 +300,39 @@ def train_one(r: Run, tcfg: dict, runs_dir: Path, quick: bool, offline: bool) ->
         "val_recall": round(float(best["metrics/recall(B)"]), 4),
         "device": torch.cuda.get_device_name(0) if torch.cuda.is_available() else "cpu",
         "finished": datetime.now().isoformat(timespec="seconds"),
+        **(extra or {}),
     }
     (run_dir / "run_meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
     return meta
+
+
+def finalize_one(r: Run, runs_dir: Path, quick: bool) -> dict | None:
+    """Write ``run_meta.json`` for a run whose training finished but whose process died after.
+
+    Ultralytics saves ``best.pt`` and ``results.csv`` before its final validation, so a run killed
+    there (e.g. out of RAM) has everything the summary needs. The summary comes from
+    ``results.csv`` exactly as after a normal run; only the wall time is taken from the
+    ``time`` column (cumulative seconds) instead of being measured.
+
+    Args:
+        r: Run spec.
+        runs_dir: Output root.
+        quick: Pipeline-check mode.
+
+    Returns:
+        The summary, or None if the run has no ``best.pt``/``results.csv``.
+    """
+    run_dir = runs_dir / r.run_id
+    if not ((run_dir / "weights" / "best.pt").exists() and (run_dir / "results.csv").exists()):
+        return None
+    res = pd.read_csv(run_dir / "results.csv")
+    res.columns = [c.strip() for c in res.columns]
+    wall = float(res["time"].iloc[-1]) if "time" in res.columns else 0.0
+    pretrained = None
+    if r.weights:
+        loaded, total = transferred_items(r.cfg, r.weights)
+        pretrained = f"{loaded}/{total}"
+    return write_meta(r, run_dir, wall, pretrained, quick, False, {"finalized_after_crash": True})
 
 
 def main() -> None:
@@ -286,9 +344,17 @@ def main() -> None:
     parser.add_argument("--list", action="store_true", help="Print the plan and time estimate only")
     parser.add_argument("--yes", action="store_true", help="Confirm: actually start training")
     parser.add_argument("--offline", action="store_true", help="No downloads (random init)")
+    parser.add_argument(
+        "--finalize",
+        action="store_true",
+        help="Train nothing; write run_meta.json for runs that have best.pt but no summary",
+    )
     args = parser.parse_args()
     setup_logging("train")
     tcfg = load_config("train")
+    if "COLAB_RELEASE_TAG" in os.environ and tcfg.get("colab_overrides"):
+        tcfg |= tcfg["colab_overrides"]
+        log.info("Google Colab detected: using %s", tcfg["colab_overrides"])
     runs_dir = project_path("outputs/runs_quick" if args.quick else "outputs/runs")
     runs_dir.mkdir(parents=True, exist_ok=True)
 
@@ -308,6 +374,25 @@ def main() -> None:
         table["est_hours"].sum(),
     )
     if args.list or args.dry_run:
+        return
+    if args.finalize:
+        weights_dir = project_path("outputs/weights")  # where transferred_items finds the .pt files
+        weights_dir.mkdir(parents=True, exist_ok=True)
+        os.chdir(weights_dir)
+        for r in runs:
+            if (runs_dir / r.run_id / "run_meta.json").exists():
+                continue
+            meta = finalize_one(r, runs_dir, args.quick)
+            if meta is None:
+                log.info("[%s] no best.pt/results.csv - nothing to finalize", r.run_id)
+            else:
+                log.info(
+                    "[%s] finalized: val mAP50-95 %.3f (best epoch %d of %d)",
+                    r.run_id,
+                    meta["val_mAP50_95"],
+                    meta["best_epoch"],
+                    meta["epochs_done"],
+                )
         return
     if not args.yes:
         log.warning("Nothing trained. Re-run with --yes to start (check the plan above first).")

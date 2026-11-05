@@ -9,6 +9,12 @@ device: 0
 cache: ram         # resized images kept in RAM (~4 GB for RDD train at 640); use false if RAM is short
 deterministic: true
 distill_weight: 6.0   # Ultralytics `dis` (only for runs with a teacher)
+# Applied on top of the values above only when running on Google Colab (detected by the
+# COLAB_RELEASE_TAG env var). Colab has ~12.7 GB RAM and 2 vCPUs: cache=ram plus 8 workers got the
+# process killed (exit -9, out of RAM) during the final validation. Local runs are unaffected.
+colab_overrides:
+  cache: false
+  workers: 2
 quick:                # pipeline check only: 5% of training images, 3 epochs, separate output folder
   fraction: 0.05
   epochs: 3
