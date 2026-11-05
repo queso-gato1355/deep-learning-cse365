@@ -129,26 +129,22 @@ MWPD has no weather labels in its files, so we tagged every image ourselves.}
 % ---------------------------------------------------------------- 5
 \begin{frame}{What the data looks like}
   \begin{columns}[c]
-    \begin{column}{0.56\textwidth}
+    \begin{column}{0.60\textwidth}
       \centering
-      \includegraphics[width=\linewidth,height=0.80\textheight,keepaspectratio]{fig_samples_grid}
+      \includegraphics[width=\linewidth,height=0.86\textheight,keepaspectratio]{fig_samples_grid}
     \end{column}
-    \begin{column}{0.44\textwidth}
+    \begin{column}{0.40\textwidth}
       \footnotesize
-      Random positive test images; \textcolor{green!50!black}{green} = pothole box
-      after conversion to YOLO.
+      Random test images; \textcolor{green!50!black}{green} = pothole box (YOLO label).
       \begin{itemize}
-        \setlength{\itemsep}{3pt}
-        \item \textbf{RDD2022:} whole street scene from a car; potholes are
+        \setlength{\itemsep}{2pt}
+        \item \textbf{RDD2022:} street scene from a car; potholes are
           \alert{small and far away}.
-        \item \textbf{MWPD normal:} close-ups from the web (stock-photo watermarks);
-          the pothole fills the frame.
-        \item \textbf{MWPD rainy:} water-filled potholes with reflections ---
-          they look very different from dry ones.
+        \item \textbf{MWPD normal:} web close-ups (watermarks); the pothole fills the frame.
+        \item \textbf{MWPD rainy:} water-filled, reflective potholes.
       \end{itemize}
-      \medskip
-      $\Rightarrow$ C/D test a real shift in \textbf{viewpoint, scale and source},
-      not only in weather.
+      \smallskip
+      $\Rightarrow$ C/D shift \textbf{viewpoint, scale and source}, not only the weather.
     \end{column}
   \end{columns}
 \end{frame}
