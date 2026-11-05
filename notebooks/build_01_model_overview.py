@@ -112,7 +112,20 @@ if torch.cuda.is_available():
     p = torch.cuda.get_device_properties(0)
     print(f"GPU      : {p.name} | VRAM {p.total_memory / 2**30:.1f} GB")
 else:
-    print("GPU      : 없음 (CPU 모드)")
+    import shutil, subprocess
+    smi = shutil.which("nvidia-smi") and subprocess.run(
+        ["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"], capture_output=True, text=True)
+    if smi and smi.returncode == 0:  # GPU는 있는데 PyTorch가 못 쓰는 경우
+        print(f"GPU      : ⚠️ {smi.stdout.strip()} 가 있지만 PyTorch가 사용하지 못함")
+        if torch.version.cuda is None:
+            print("           원인: CPU 전용 torch가 설치됨 (Windows에서 pip install -r requirements.txt만 하면 이렇게 됨)")
+            print("           해결: 터미널에서 아래 실행 후 커널 재시작")
+            print("           python -m pip install --force-reinstall --no-deps torch==2.11.0 torchvision==0.26.0"
+                  " --index-url https://download.pytorch.org/whl/cu128")
+        else:
+            print("           원인: NVIDIA 드라이버가 이 torch의 CUDA 버전보다 오래됨 → 드라이버 업데이트 또는 cu126 torch")
+    else:
+        print("GPU      : 없음 (CPU 모드)")
 print("데이터    :", "있음" if HAS_DATA else "없음 → 데이터 셀은 건너뜀")
 """),
     md(r"""## 1. 프로젝트 목표와 연구 질문
