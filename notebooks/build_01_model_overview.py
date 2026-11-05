@@ -14,6 +14,27 @@ import nbformat as nbf
 md = nbf.v4.new_markdown_cell
 code = nbf.v4.new_code_cell
 
+COLAB_SETUP = r"""# Colab 전용 준비: 저장소 clone, ultralytics·한글 폰트 설치. 로컬에서는 건너뜀.
+import os, subprocess, sys
+from pathlib import Path
+
+if "google.colab" in sys.modules:
+    repo = Path("/content/deep-learning-cse365")
+    if not repo.exists():
+        subprocess.run(["git", "clone", "-q",
+                        "https://github.com/queso-gato1355/deep-learning-cse365.git", str(repo)],
+                       check=True)
+    os.chdir(repo)  # 아래 셀은 저장소 루트를 기준으로 경로를 찾음
+    subprocess.run([sys.executable, "-m", "pip", "install", "-q", "ultralytics==8.4.198"], check=True)
+    subprocess.run("apt-get -qq install -y fonts-nanum > /dev/null", shell=True, check=True)
+    from matplotlib import font_manager
+    for f in Path("/usr/share/fonts/truetype/nanum").glob("*.ttf"):
+        font_manager.fontManager.addfont(str(f))
+    print("Colab 준비 완료:", Path.cwd())
+else:
+    print("로컬 실행: Colab 준비 단계 건너뜀")
+"""
+
 cells = [
     md(r"""# 01. 모델 구조 개요 — 경량 포트홀 탐지기
 
@@ -45,7 +66,13 @@ cells = [
 > **GPU 메모리 메모** — RTX 3070은 VRAM이 **8GB**이고, 24GB는 RTX 3090입니다. 아래 셀이 실제 값을 출력하니 확인해 주세요.
 > 8GB라면 학습 시 batch 크기를 줄여야 합니다 (예: YOLO26n·640 입력 기준 16 안팎부터 시작, `batch=-1`이면 Ultralytics가 자동으로 맞춤).
 > 시스템 RAM 64GB는 데이터 로딩·캐싱에 충분합니다.
+
+**Google Colab에서 실행할 때:** GitHub에서 이 노트북을 연 뒤(파일 → 노트 열기 → GitHub),
+런타임 유형을 GPU로 바꾸고 바로 아래 셀부터 실행하면 됩니다. 저장소 clone, `ultralytics` 설치,
+한글 폰트(나눔고딕) 설치를 자동으로 합니다. 로컬에서는 이 셀이 아무것도 하지 않습니다.
+Colab CPU는 2코어라 6절의 CPU 지연시간은 로컬 값과 다르게 나옵니다(모델 간 상대 비교로만 보세요).
 """),
+    code(COLAB_SETUP),
     code(r"""import platform, warnings
 from pathlib import Path
 
