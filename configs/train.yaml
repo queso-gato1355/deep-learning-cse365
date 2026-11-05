@@ -1,14 +1,19 @@
-# Common training hyper-parameters (identical for every model within a strategy).
-imgsz: 640
+# Common training hyper-parameters (identical for every run unless experiments.yaml says otherwise).
 epochs: 100
 patience: 20
-batch: -1          # Ultralytics auto-batch
+batch: -1          # Ultralytics AutoBatch (~60% of GPU memory); set e.g. 16 on an 8 GB GPU if it OOMs
 optimizer: auto
 cos_lr: true
 workers: 8
 device: 0
-p_rain: 0.5        # S1: probability of applying one random synthetic-rain level per training image
-seeds: [42, 43, 44]
-quick:
-  data_fraction: 0.05
+cache: ram         # resized images kept in RAM (~4 GB for RDD train at 640); use false if RAM is short
+deterministic: true
+distill_weight: 6.0   # Ultralytics `dis` (only for runs with a teacher)
+quick:                # pipeline check only: 5% of training images, 3 epochs, separate output folder
+  fraction: 0.05
   epochs: 3
+# Fallback for time estimates before any run has finished: seconds per epoch per model GFLOP.
+# Measured 2026-11-05 on an RTX 3090: yolo26n (5.74 GFLOPs), full RDD train, cache=ram, AMP off
+# -> 16.2 s/epoch steady state (+50 s first-epoch caching). AMP (default) is faster, so this is an
+# upper bound; expect roughly 2x on an RTX 3070. Timings of finished runs replace it automatically.
+sec_per_epoch_per_gflop: 2.8

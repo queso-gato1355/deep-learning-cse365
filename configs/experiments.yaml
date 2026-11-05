@@ -1,36 +1,57 @@
-# Experiment matrix. run_id = {model}_{strategy}_s{seed}
+# Phase 2 experiment matrix (efficiency-first; replaces the original rain-strategy matrix S0-S3).
+# run_id = {model}_{variant}_s{seed}; variant encodes data/imgsz/teacher, e.g. "rdd640", "crop60_640".
+# Each step changes ONE thing relative to the yolo26n_rdd640 anchor so its effect can be isolated (RQ2).
+
 models:
-  yolov8n: {weights: yolov8n.pt}
-  yolov8s: {weights: yolov8s.pt}
-  rtdetr-l: {weights: rtdetr-l.pt}
-  yolov8s_cbam: {cfg: src/models/yolov8s_cbam.yaml, init_from: yolov8s.pt}
+  yolov8n:    {cfg: yolov8n.yaml,    weights: yolov8n.pt}
+  yolov8s:    {cfg: yolov8s.yaml,    weights: yolov8s.pt}
+  yolo26n:    {cfg: yolo26n.yaml,    weights: yolo26n.pt}
+  yolo26s:    {cfg: yolo26s.yaml,    weights: yolo26s.pt}
+  yolo26n-p2: {cfg: yolo26n-p2.yaml, weights: yolo26n.pt}   # P2 branch + 1-class head start random
+  rtdetr-l:   {cfg: rtdetr-l.yaml,   weights: rtdetr-l.pt}  # accuracy reference only (heavy)
 
-strategies:
-  S0: {name: clean, train_data: rdd, rain_aug: false}
-  S1: {name: rainaug, train_data: rdd, rain_aug: true}
-  S2: {name: derain, reuse: S0, test_time_derain: true}
-  S3: {name: realrain, train_data: rdd+mwpd_rainy_train, rain_aug: false, min_rainy_images: 200}
-
-test_sets: [A, B1, B2, B3, C, D]
+datasets:
+  rdd: data/processed/rdd.yaml                # full frames
+  crop60: data/processed/rdd_crop60.yaml      # bottom 60% of each frame (src/data/road_crop.py)
 
 experiments:
   E1:
-    desc: Main comparison
-    models: [yolov8n, yolov8s, rtdetr-l, yolov8s_cbam]
-    strategies: [S0, S1]
+    desc: "Family and size at the same input (640): v8 vs 26, n vs s"
+    models: [yolov8n, yolov8s, yolo26n, yolo26s]
+    data: rdd
+    imgsz: [640]
     seeds: [42, 43, 44]
   E2:
-    desc: Test-time deraining
-    models: [yolov8s]
-    strategies: [S2]
-    seeds: [42]
-  E3:
-    desc: Real-rain upper bound
-    models: [yolov8s]
-    strategies: [S3]
-    seeds: [42]
-  E4:
-    desc: Ablation (shares runs with E1)
-    models: [yolov8s, yolov8s_cbam]
-    strategies: [S0, S1]
+    desc: "Input resolution (train and test at the same size)"
+    models: [yolo26n]
+    data: rdd
+    imgsz: [480, 320]
     seeds: [42, 43, 44]
+  E3:
+    desc: "Road-region crop: same pixels per pothole, ~40% fewer FLOPs at inference"
+    models: [yolo26n]
+    data: crop60
+    imgsz: [640]
+    seeds: [42, 43, 44]
+  E4:
+    desc: "Extra P2 (stride-4) branch for small potholes, full frame and cropped"
+    models: [yolo26n-p2]
+    data: [rdd, crop60]
+    imgsz: [640]
+    seeds: [42, 43, 44]
+  E5:
+    desc: "Knowledge distillation: yolo26n student, yolo26s teacher (needs E1 yolo26s, same seed)"
+    models: [yolo26n]
+    data: rdd
+    imgsz: [640]
+    teacher: yolo26s     # uses outputs/runs/yolo26s_rdd640_s{seed}/weights/best.pt
+    seeds: [42, 43, 44]
+  E0:
+    desc: "Optional accuracy reference (slow, ~8 GB VRAM needs a small batch)"
+    models: [rtdetr-l]
+    data: rdd
+    imgsz: [640]
+    seeds: [42]
+
+# Run order: E1 -> E2/E3/E4 (any order) -> E5 (needs E1 teachers). E0 only if time allows.
+# Post-training levers (FP16/INT8 export, end-to-end speed) are measured in Phase 3.

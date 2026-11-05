@@ -18,6 +18,8 @@ data/processed/splits/*
 # Generated / large outputs
 outputs/logs/
 outputs/runs/
+outputs/runs_quick/
+outputs/weights/
 outputs/tag_weather.html
 *.pt
 *.pth

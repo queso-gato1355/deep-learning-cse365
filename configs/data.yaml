@@ -47,3 +47,7 @@ classes:
   names: [pothole]
 
 seed: 42
+
+road_crop:
+  keep: [0.6]          # kept fraction of frame height (from the bottom); try [0.5, 0.6, 0.7]
+  min_visible: 0.5     # drop a box if less than half of its area remains inside the crop

@@ -1,12 +1,21 @@
-# Python 3.11. Install with:
-#   uv venv --python 3.11 .venv
-#   uv pip install -r requirements.txt
---extra-index-url https://download.pytorch.org/whl/cu128
-torch==2.11.0+cu128
-torchvision==0.26.0+cu128
+# Python 3.11-3.13. Install in a fresh virtual environment, in two steps:
+#
+#   1) PyTorch for your hardware (pick ONE; see https://pytorch.org/get-started/locally/):
+#        NVIDIA, driver >= 570 : pip install torch==2.11.0 torchvision==0.26.0 --index-url https://download.pytorch.org/whl/cu128
+#        NVIDIA, older driver  : pip install torch==2.11.0 torchvision==0.26.0 --index-url https://download.pytorch.org/whl/cu126
+#        CPU only / macOS      : pip install torch==2.11.0 torchvision==0.26.0
+#   2) Everything else:
+#        pip install -r requirements.txt
+#
+# torch/torchvision are pinned WITHOUT a CUDA tag so any build from step 1 satisfies them.
+torch==2.11.0
+torchvision==0.26.0
 ultralytics==8.4.198
 albumentations==2.0.8
+# ultralytics needs opencv-python, albumentations needs opencv-python-headless; both ship the
+# same cv2 package, so they must be the exact same version or cv2 breaks.
 opencv-python==5.0.0.93
+opencv-python-headless==5.0.0.93
 pandas==3.1.0
 numpy==2.4.6
 matplotlib==3.11.2
@@ -15,12 +24,14 @@ scikit-learn==1.9.1
 tqdm==4.70.1
 pyyaml==6.0.3
 grad-cam==1.5.7
-thop==0.1.1.post2209072238
 pycocotools==2.0.11
 requests==2.34.2
 jinja2==3.1.6
 ruff==0.17.3
+# Notebooks
 jupyter==1.1.1
 nbformat==5.11.1
 nbconvert==7.17.2
 ipykernel==7.4.0
+# FLOPs: ultralytics already installs `ultralytics-thop`. Do NOT add the old `thop` package:
+# both install the same `thop` module and overwrite each other.
