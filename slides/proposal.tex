@@ -19,7 +19,7 @@
 \title{Lightweight Pothole Detection for Vehicle-Based Road Monitoring}
 \subtitle{Can a small, fast detector find potholes well enough to report them automatically?\\[2pt]
   \small CSE36501 Deep Learning --- Project Proposal}
-\author{[Name] \quad ([Student ID])}
+\author{Young-chan Jung (20221355) \and Sumin Jo (20221371)}
 \institute{UNIST, Fall 2026}
 \date{November 6, 2026}
 
@@ -28,11 +28,11 @@
 % ---------------------------------------------------------------- 1
 \maketitle
 \note{%
-Hello, I am [Name]. My project is about lightweight pothole detection for vehicle-based road
+Hello, we are Young-chan Jung and Sumin Jo. Our project is about lightweight pothole detection for vehicle-based road
 monitoring. The idea is that future autonomous cars could detect potholes on their own and
-report them to the road authority right away, so I want to find out whether I can build a
+report them to the road authority right away, so we want to find out whether we can build a
 detector that is accurate enough while being small and fast enough to run on a car.
-Today I will cover the problem definition and the datasets.}
+Today we will cover the problem definition and the datasets.}
 
 % ---------------------------------------------------------------- 2
 \begin{frame}{Motivation}
@@ -57,8 +57,8 @@ them. But most people do not bother to report small potholes, and on rural or su
 reports can come very late. Once autonomous cars are common, every car is effectively a road
 sensor, so it could detect a pothole and send its location to the road agency immediately.
 The catch is that the car's computer is busy driving. A pothole detector is only a side task,
-so it has to be efficient, fast and use little computation. My question is whether I can
-build such a model myself.}
+so it has to be efficient, fast and use little computation. Our question is whether we can
+build such a model ourselves.}
 
 % ---------------------------------------------------------------- 3
 \begin{frame}{Problem statement}
@@ -118,13 +118,13 @@ still work there?}
   \end{itemize}
 \end{frame}
 \note{%
-I use two datasets. RDD2022 is the large multi-country road damage dataset from the CRDDC
+We use two datasets. RDD2022 is the large multi-country road damage dataset from the CRDDC
 challenge, about forty-seven thousand images captured from vehicles, which is exactly the
-viewpoint we care about. It has several damage classes; I keep only D40, the pothole class,
-and I drop the China drone subset because it is shot from above.
+viewpoint we care about. It has several damage classes; we keep only D40, the pothole class,
+and we drop the China drone subset because it is shot from above.
 MWPD, the Multi-Weather Pothole Detection dataset, is used only for testing: it comes from a
 different source and includes real rain, so it tells us how the model transfers.
-MWPD has no weather labels in its files, so I tagged every image myself.}
+MWPD has no weather labels in its files, so we tagged every image ourselves.}
 
 % ---------------------------------------------------------------- 5
 \begin{frame}{Dataset analysis}
@@ -155,8 +155,8 @@ On the right, and most important for this project: about a quarter of the RDD po
 small objects, less than thirty-two pixels across at the usual input size. Those small
 potholes are exactly the ones people never report, and they are also the first thing a
 detector loses when we make it cheaper, for example by lowering the input resolution.
-So I will always report accuracy for small objects separately.
-Finally, RDD contains consecutive frames, so I split by blocks of fifty frames to keep near-
+So we will always report accuracy for small objects separately.
+Finally, RDD contains consecutive frames, so we split by blocks of fifty frames to keep near-
 identical images out of both train and test.}
 
 % ---------------------------------------------------------------- 6
@@ -183,7 +183,7 @@ identical images out of both train and test.}
   B, C, D answer RQ3: does the efficient model still work off the training distribution?
 \end{frame}
 \note{%
-For evaluation, set A, my clean RDD test split, measures the main accuracy. Sets B1 to B3 are
+For evaluation, set A, our clean RDD test split, measures the main accuracy. Sets B1 to B3 are
 the very same images with synthetic rain of increasing strength, and C and D are MWPD images in
 normal weather and in real rain. Those three groups are robustness checks for the third
 research question. Every model is reported on two axes: accuracy, including small-object
@@ -209,11 +209,11 @@ accuracy, and cost, meaning parameters, GFLOPs and frames per second on both a G
   proxy for in-vehicle hardware. Everything is scripted and seeded for reproducibility.
 \end{frame}
 \note{%
-Steps one and two, the problem and the data, are finished and are what I presented today.
-Next I will train baselines from very small to large, and then apply efficiency levers:
-lower input resolution, a lightweight variant of my own, and reduced precision.
+Steps one and two, the problem and the data, are finished and are what we presented today.
+Next we will train baselines from very small to large, and then apply efficiency levers:
+lower input resolution, a lightweight variant of our own, and reduced precision.
 The main result will be accuracy-versus-cost curves, with small-object accuracy and the
-robustness sets. Since the target is a car rather than a big GPU, I will also measure speed on
+robustness sets. Since the target is a car rather than a big GPU, we will also measure speed on
 a CPU. Thank you.}
 
 \end{document}
