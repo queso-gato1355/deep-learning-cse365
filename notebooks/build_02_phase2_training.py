@@ -29,6 +29,46 @@ cells = [
 - 이미 끝난 실험은 자동으로 건너뜁니다. 중간에 끊겨도 같은 셀을 다시 실행하면 이어서(남은 run부터) 진행합니다.
   단, *학습 도중* 끊긴 run 하나는 처음부터 다시 학습합니다.
 """),
+    md(r"""## 0. Colab 준비 (Colab에서만 실행됨, 로컬에서는 건너뜀)
+
+Colab에서는 노트북마다 런타임이 따로이고 세션이 끝나면 로컬 디스크가 비워지므로, **새 세션마다** 아래 셀이
+Drive 마운트 → 저장소 clone → `python -m src.data.colab_setup`을 실행합니다.
+(`MyDrive/<DRIVE_DIR>/data.zip` 압축 해제, `outputs/logs`·`outputs/runs`를 Drive에 연결, 데이터셋 YAML 경로 수정)
+처음 한 번은 zip 복사·압축 해제로 시간이 걸리고, 같은 세션에서 다시 실행하면 건너뜁니다.
+로컬에서는 아무것도 하지 않습니다.
+"""),
+    code(r"""import os, subprocess, sys
+from pathlib import Path
+
+if "google.colab" in sys.modules:
+    DRIVE_DIR = "cse365_pothole"   # data.zip이 있는 MyDrive 아래 폴더
+    REPO_URL = "https://github.com/queso-gato1355/deep-learning-cse365.git"
+
+    def sh(*cmd):
+        # 명령 출력을 셀에 실시간으로 보여 주고, 실패하면 중단
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
+        for line in p.stdout:
+            print(line, end="")
+        if p.wait():
+            raise RuntimeError(f"`{' '.join(cmd)}` 실패 (exit {p.returncode}); 위 출력을 확인하세요.")
+
+    from google.colab import drive
+    drive.mount("/content/drive")
+    repo = Path("/content/deep-learning-cse365")
+    if (repo / ".git").exists():
+        sh("git", "-C", str(repo), "pull", "--ff-only")
+    else:
+        sh("git", "clone", REPO_URL, str(repo))
+    os.chdir(repo)  # 아래 셀은 저장소 루트를 기준으로 경로를 찾음
+    sh(sys.executable, "-m", "src.data.colab_setup", "--drive-dir", DRIVE_DIR)
+    subprocess.run("apt-get -qq install -y fonts-nanum > /dev/null", shell=True, check=True)
+    from matplotlib import font_manager
+    for f in Path("/usr/share/fonts/truetype/nanum").glob("*.ttf"):
+        font_manager.fontManager.addfont(str(f))
+    print("Colab 준비 완료:", Path.cwd())
+else:
+    print("로컬 실행: Colab 준비 단계 건너뜀")
+"""),
     md(r"""## 1. 환경 점검 — 라이브러리 호환성 문제 해결
 
 ### 무엇이 문제였나
@@ -212,7 +252,8 @@ print({k: tcfg[k] for k in ["epochs", "patience", "batch", "optimizer", "cos_lr"
     md(r"""## 3. 데이터 확인
 
 Phase 1 데이터(`make data`)와 잘라낸 데이터셋(`python -m src.data.road_crop`)이 있어야 합니다.
-데이터는 저장소에 없으므로, 처음이라면 README의 **Data** 절대로 받은 뒤 아래 명령을 실행합니다.
+Colab에서는 0번 셀이 Drive의 `data.zip`으로 이미 준비했으므로 바로 아래 확인 셀만 실행하면 됩니다.
+로컬에서는 데이터가 저장소에 없으므로, 처음이라면 README의 **Data** 절대로 받은 뒤 아래 명령을 실행합니다.
 ```bash
 make data                         # 또는 python -m src.data.inspect ... (Makefile 참고)
 python -m src.data.road_crop      # data/processed/rdd_crop60 생성 (약 1~2분)
