@@ -42,3 +42,6 @@ outputs/tag_weather.html
 *.zip
 video/*
 !video/.gitkeep
+
+# Local notes
+project_guidelines.md
