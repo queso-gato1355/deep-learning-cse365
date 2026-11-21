@@ -19,7 +19,7 @@ help:
 	@echo "make crop      - build the road-region (bottom 60%) dataset for E3/E4"
 	@echo "make train-list EXP=E1  - show Phase 2 runs and time estimate"
 	@echo "make train EXP=E1       - train (finished runs skipped); ARGS='--seeds 42' etc."
-	@echo "make proposal  - build slides/proposal.pdf and slides/proposal-notes.pdf (speaker notes)"
+	@echo "make proposal  - build slides/proposal.pdf"
 	@echo "make kernel    - register deep_learning as Jupyter kernel 'deep_learning'"
 	@echo "make notebook  - rebuild and execute notebooks/01_model_overview.ipynb"
 	@echo "make notebooks - regenerate notebooks/02_phase2_training.ipynb (saved without outputs)"
@@ -60,7 +60,7 @@ eda: rain
 data: eda
 
 proposal:
-	cd slides && latexmk -pdf -interaction=nonstopmode proposal.tex proposal-notes.tex
+	cd slides && latexmk -pdf -interaction=nonstopmode proposal.tex
 
 kernel:
 	$(PY) -m ipykernel install --user --name deep_learning --display-name "Python 3.14 (deep_learning)"
