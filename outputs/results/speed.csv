@@ -1,0 +1,34 @@
+config,exp,model,data_key,imgsz,device,precision,params_M,gflops_eff,n_timed,pre_ms,inf_ms,post_ms,total_ms,fps,wall_fps,hardware
+rtdetr-l_rdd_640,E0,rtdetr-l,rdd,640,cpu,fp32,32.808,109.184,100,1.252,115.759,0.18,117.191,8.533,8.516,AMD Ryzen 9 9950X3D 16-Core Processor (16 threads)
+rtdetr-l_rdd_640,E0,rtdetr-l,rdd,640,gpu,fp16,32.808,109.184,300,1.147,13.802,0.378,15.327,65.244,64.447,NVIDIA GeForce RTX 3090
+rtdetr-l_rdd_640,E0,rtdetr-l,rdd,640,gpu,fp32,32.808,109.184,300,1.135,15.209,0.354,16.697,59.889,59.243,NVIDIA GeForce RTX 3090
+yolo26n-p2_crop60_640,E4,yolo26n-p2,crop60,640,cpu,fp32,2.516,5.049,100,0.498,12.231,0.457,13.186,75.838,74.641,AMD Ryzen 9 9950X3D 16-Core Processor (16 threads)
+yolo26n-p2_crop60_640,E4,yolo26n-p2,crop60,640,gpu,fp16,2.516,5.049,300,0.45,6.72,0.621,7.791,128.359,126.095,NVIDIA GeForce RTX 3090
+yolo26n-p2_crop60_640,E4,yolo26n-p2,crop60,640,gpu,fp32,2.516,5.049,300,0.43,5.889,0.598,6.917,144.568,141.732,NVIDIA GeForce RTX 3090
+yolo26n-p2_rdd_640,E4,yolo26n-p2,rdd,640,cpu,fp32,2.516,8.464,100,1.322,15.39,0.449,17.161,58.273,57.545,AMD Ryzen 9 9950X3D 16-Core Processor (16 threads)
+yolo26n-p2_rdd_640,E4,yolo26n-p2,rdd,640,gpu,fp16,2.516,8.464,300,1.156,6.607,0.663,8.426,118.687,116.597,NVIDIA GeForce RTX 3090
+yolo26n-p2_rdd_640,E4,yolo26n-p2,rdd,640,gpu,fp32,2.516,8.464,300,1.102,6.006,0.635,7.743,129.146,126.756,NVIDIA GeForce RTX 3090
+yolo26n_crop60_640,E3,yolo26n,crop60,640,cpu,fp32,2.504,3.492,100,0.437,7.733,0.337,8.507,117.554,115.041,AMD Ryzen 9 9950X3D 16-Core Processor (16 threads)
+yolo26n_crop60_640,E3,yolo26n,crop60,640,gpu,fp16,2.504,3.492,300,0.427,5.384,0.602,6.414,155.92,152.742,NVIDIA GeForce RTX 3090
+yolo26n_crop60_640,E3,yolo26n,crop60,640,gpu,fp32,2.504,3.492,300,0.423,4.696,0.584,5.704,175.33,171.406,NVIDIA GeForce RTX 3090
+yolo26n_rdd_320,E2,yolo26n,rdd,320,cpu,fp32,2.504,1.444,100,0.308,5.528,0.276,6.112,163.612,159.584,AMD Ryzen 9 9950X3D 16-Core Processor (16 threads)
+yolo26n_rdd_320,E2,yolo26n,rdd,320,gpu,fp16,2.504,1.444,300,0.359,5.315,0.613,6.288,159.043,155.775,NVIDIA GeForce RTX 3090
+yolo26n_rdd_320,E2,yolo26n,rdd,320,gpu,fp32,2.504,1.444,300,0.358,4.871,0.57,5.799,172.442,168.699,NVIDIA GeForce RTX 3090
+yolo26n_rdd_480,E2,yolo26n,rdd,480,cpu,fp32,2.504,3.271,100,0.471,7.705,0.328,8.504,117.587,115.074,AMD Ryzen 9 9950X3D 16-Core Processor (16 threads)
+yolo26n_rdd_480,E2,yolo26n,rdd,480,gpu,fp16,2.504,3.271,300,0.467,5.27,0.617,6.354,157.39,154.199,NVIDIA GeForce RTX 3090
+yolo26n_rdd_480,E2,yolo26n,rdd,480,gpu,fp32,2.504,3.271,300,0.463,4.689,0.585,5.736,174.329,170.491,NVIDIA GeForce RTX 3090
+yolo26n_rdd_640,E1,yolo26n,rdd,640,cpu,fp32,2.504,5.869,100,1.249,9.941,0.382,11.572,86.412,84.899,AMD Ryzen 9 9950X3D 16-Core Processor (16 threads)
+yolo26n_rdd_640,E1,yolo26n,rdd,640,gpu,fp16,2.504,5.869,300,1.114,5.326,0.66,7.099,140.858,138.078,NVIDIA GeForce RTX 3090
+yolo26n_rdd_640,E1,yolo26n,rdd,640,gpu,fp32,2.504,5.869,300,1.104,4.757,0.623,6.485,154.202,150.982,NVIDIA GeForce RTX 3090
+yolo26n_rdd_640_kd-yolo26s,E5,yolo26n,rdd,640,cpu,fp32,2.504,5.869,100,1.267,10.459,0.384,12.11,82.578,81.203,AMD Ryzen 9 9950X3D 16-Core Processor (16 threads)
+yolo26n_rdd_640_kd-yolo26s,E5,yolo26n,rdd,640,gpu,fp16,2.504,5.869,300,1.111,5.331,0.653,7.095,140.953,138.14,NVIDIA GeForce RTX 3090
+yolo26n_rdd_640_kd-yolo26s,E5,yolo26n,rdd,640,gpu,fp32,2.504,5.869,300,1.125,4.837,0.645,6.607,151.354,148.057,NVIDIA GeForce RTX 3090
+yolo26s_rdd_640,E1,yolo26s,rdd,640,cpu,fp32,9.949,22.436,100,1.266,21.235,0.403,22.905,43.659,43.264,AMD Ryzen 9 9950X3D 16-Core Processor (16 threads)
+yolo26s_rdd_640,E1,yolo26s,rdd,640,gpu,fp16,9.949,22.436,300,1.099,5.439,0.627,7.165,139.559,136.744,NVIDIA GeForce RTX 3090
+yolo26s_rdd_640,E1,yolo26s,rdd,640,gpu,fp32,9.949,22.436,300,1.109,5.082,0.601,6.792,147.226,144.21,NVIDIA GeForce RTX 3090
+yolov8n_rdd_640,E1,yolov8n,rdd,640,cpu,fp32,3.011,8.638,100,1.231,8.978,0.393,10.602,94.323,92.568,AMD Ryzen 9 9950X3D 16-Core Processor (16 threads)
+yolov8n_rdd_640,E1,yolov8n,rdd,640,gpu,fp16,3.011,8.638,300,1.076,3.543,0.649,5.267,189.86,185.176,NVIDIA GeForce RTX 3090
+yolov8n_rdd_640,E1,yolov8n,rdd,640,gpu,fp32,3.011,8.638,300,1.097,3.338,0.629,5.064,197.465,192.289,NVIDIA GeForce RTX 3090
+yolov8s_rdd_640,E1,yolov8s,rdd,640,cpu,fp32,11.136,28.433,100,1.27,21.148,0.399,22.817,43.827,43.423,AMD Ryzen 9 9950X3D 16-Core Processor (16 threads)
+yolov8s_rdd_640,E1,yolov8s,rdd,640,gpu,fp16,11.136,28.433,300,1.077,3.565,0.59,5.232,191.12,186.372,NVIDIA GeForce RTX 3090
+yolov8s_rdd_640,E1,yolov8s,rdd,640,gpu,fp32,11.136,28.433,300,1.075,3.47,0.571,5.116,195.449,190.535,NVIDIA GeForce RTX 3090
