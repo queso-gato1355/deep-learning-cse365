@@ -52,6 +52,9 @@ experiments:
     data: rdd
     imgsz: [640]
     seeds: [42]
+    train_args:
+      optimizer: AdamW
+      lr0: 0.0001
 
 # Run order: E1 -> E2/E3/E4 (any order) -> E5 (needs E1 teachers). E0 only if time allows.
 # Post-training levers (FP16/INT8 export, end-to-end speed) are measured in Phase 3.

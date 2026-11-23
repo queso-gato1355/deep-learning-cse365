@@ -22,7 +22,7 @@ import json
 import logging
 import os
 import time
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -50,6 +50,7 @@ class Run:
     imgsz: int
     seed: int
     teacher_run: str | None = None
+    train_args: dict[str, Any] = field(default_factory=dict)
 
 
 def as_list(v: Any) -> list:
@@ -249,6 +250,7 @@ def train_one(r: Run, tcfg: dict, runs_dir: Path, quick: bool, offline: bool) ->
     }
     if teacher is not None:
         args |= {"distill_model": str(teacher), "dis": tcfg["distill_weight"]}
+    args |= r.train_args
     t0 = time.time()
     model.train(**args)
     wall = time.time() - t0
