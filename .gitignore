@@ -21,6 +21,10 @@ outputs/logs/
 outputs/runs/
 outputs/runs_quick/
 outputs/weights/
+outputs/eval/
+outputs/results/*_quick.csv
+outputs/tables/*_quick.*
+outputs/figures/*_quick.*
 outputs/tag_weather.html
 *.pt
 *.pth

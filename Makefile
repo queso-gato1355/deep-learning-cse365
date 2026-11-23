@@ -9,7 +9,7 @@ ARGS ?=
 TORCH ?= cu128
 EXP ?= E1
 
-.PHONY: help env lint download inspect tag convert split rain eda data crop proposal kernel notebook notebooks train train-list
+.PHONY: help env lint download inspect tag convert split rain eda data crop proposal kernel notebook notebooks train train-list evaluate speed aggregate visualize eval
 
 help:
 	@echo "make env       - create deep_learning (uv, Python 3.14, with pip), install torch (TORCH=cu128|cu126|cpu) + requirements"
@@ -22,7 +22,8 @@ help:
 	@echo "make proposal  - build slides/proposal.pdf"
 	@echo "make kernel    - register deep_learning as Jupyter kernel 'deep_learning'"
 	@echo "make notebook  - rebuild and execute notebooks/01_model_overview.ipynb"
-	@echo "make notebooks - regenerate notebooks/02_phase2_training.ipynb (saved without outputs)"
+	@echo "make notebooks - regenerate notebooks 02 (training) and 03 (evaluation), saved without outputs"
+	@echo "make eval      - Phase 3: evaluate (accuracy, cached) + speed (timing) + aggregate (tables, figures) + visualize (example boxes, layer maps)"
 	@echo "make tag       - rebuild outputs/tag_weather.html (manual MWPD weather tags)"
 	@echo "ARGS='--dry-run' or ARGS='--force' are passed to every Phase-1 script"
 
@@ -80,3 +81,18 @@ train:
 
 notebooks:
 	$(PY) notebooks/build_02_phase2_training.py
+	$(PY) notebooks/build_03_phase3_eval.py
+
+evaluate:
+	$(PY) -m src.eval.evaluate $(ARGS)
+
+speed:
+	$(PY) -m src.eval.speed $(ARGS)
+
+aggregate:
+	$(PY) -m src.eval.aggregate $(ARGS)
+
+visualize:
+	$(PY) -m src.eval.visualize $(ARGS)
+
+eval: evaluate speed aggregate visualize
