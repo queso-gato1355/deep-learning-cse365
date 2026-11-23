@@ -19,11 +19,16 @@ import os, subprocess, sys
 from pathlib import Path
 
 if "google.colab" in sys.modules:
+    BRANCH = "sumin"   # 받아올 브랜치 (main에 합친 뒤에는 "main"으로)
     repo = Path("/content/deep-learning-cse365")
     if not repo.exists():
-        subprocess.run(["git", "clone", "-q",
+        subprocess.run(["git", "clone", "-q", "-b", BRANCH,
                         "https://github.com/queso-gato1355/deep-learning-cse365.git", str(repo)],
                        check=True)
+    else:  # 이미 받아 둔 저장소: 같은 브랜치로 맞추고 최신으로 갱신
+        for cmd in (["fetch", "-q", "origin", BRANCH], ["checkout", "-q", BRANCH],
+                    ["pull", "-q", "--ff-only", "origin", BRANCH]):
+            subprocess.run(["git", "-C", str(repo), *cmd], check=True)
     os.chdir(repo)  # 아래 셀은 저장소 루트를 기준으로 경로를 찾음
     subprocess.run([sys.executable, "-m", "pip", "install", "-q", "ultralytics==8.4.198"], check=True)
     subprocess.run("apt-get -qq install -y fonts-nanum > /dev/null", shell=True, check=True)

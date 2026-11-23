@@ -43,6 +43,7 @@ from pathlib import Path
 if "google.colab" in sys.modules:
     DRIVE_DIR = "cse365_pothole"   # data.zip이 있는 MyDrive 아래 폴더
     REPO_URL = "https://github.com/queso-gato1355/deep-learning-cse365.git"
+    BRANCH = "sumin"               # 받아올 브랜치 (main에 합친 뒤에는 "main"으로)
 
     def sh(*cmd):
         # 명령 출력을 셀에 실시간으로 보여 주고, 실패하면 중단
@@ -55,10 +56,12 @@ if "google.colab" in sys.modules:
     from google.colab import drive
     drive.mount("/content/drive")
     repo = Path("/content/deep-learning-cse365")
-    if (repo / ".git").exists():
-        sh("git", "-C", str(repo), "pull", "--ff-only")
+    if (repo / ".git").exists():  # 이미 받아 둔 저장소: 같은 브랜치로 맞추고 최신으로 갱신
+        sh("git", "-C", str(repo), "fetch", "origin", BRANCH)
+        sh("git", "-C", str(repo), "checkout", BRANCH)
+        sh("git", "-C", str(repo), "pull", "--ff-only", "origin", BRANCH)
     else:
-        sh("git", "clone", REPO_URL, str(repo))
+        sh("git", "clone", "-b", BRANCH, REPO_URL, str(repo))
     os.chdir(repo)  # 아래 셀은 저장소 루트를 기준으로 경로를 찾음
     sh(sys.executable, "-m", "src.data.colab_setup", "--drive-dir", DRIVE_DIR)
     subprocess.run("apt-get -qq install -y fonts-nanum > /dev/null", shell=True, check=True)
